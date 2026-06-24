@@ -101,7 +101,6 @@ Expected result:
 Skill is valid!
 ```
 
-```html
 ## Star History
 
 <p align="center">
@@ -122,5 +121,4 @@ Skill is valid!
     </picture>
   </a>
 </p>
-```
 
