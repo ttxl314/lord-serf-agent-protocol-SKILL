@@ -1,11 +1,11 @@
 # Lord 和 Serf
 
+[![English](https://img.shields.io/badge/Language-English-blue)](README.md)
+
 一组用于多 Agent 项目编排的跨平台配套 Skill。
 
 - `lord` 是主控编排 Skill：负责复杂项目规划、任务拆分、边界与验收标准定义、任务派发、状态权威源维护和最终验收。
 - `serf` 是外部执行 Skill：负责接收 lord 派发的任务包，读取必要上下文，在边界内执行任务，自我验证，并返回可供 lord 验收的交接报告、阻塞报告或变更请求。
-
-English version: [README.md](README.md)
 
 ## 为什么需要它
 
