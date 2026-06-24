@@ -1,0 +1,81 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: Cross-platform agent task package
+type: object
+required:
+  - project_id
+  - agent_id
+  - task_version
+  - updated_at
+  - status
+  - target_agent_type
+  - dispatch_mode
+  - authoritative_state_source
+  - objective
+  - required_files
+  - expected_outputs
+  - acceptance_criteria
+properties:
+  project_id:
+    type: string
+  agent_id:
+    type: string
+    pattern: "^Agent-[A-Z][0-9]*-[0-9]{2,}$"
+  task_version:
+    type: string
+  updated_at:
+    type: string
+  status:
+    enum: [PENDING, READY, IN_PROGRESS, BLOCKED, REVIEW, REWORK, DONE, REJECTED, CANCELLED]
+  target_agent_type:
+    enum: [generic-chat-agent, coding-agent, document-agent, api-agent, shared-workspace-agent]
+  dispatch_mode:
+    enum: [direct, semi-automatic, manual-copy]
+  authoritative_state_source:
+    type: string
+  objective:
+    type: string
+  required_files:
+    type: array
+    items:
+      type: string
+  expected_outputs:
+    type: array
+    items:
+      type: string
+  acceptance_criteria:
+    type: array
+    items:
+      type: string
+  depends_on:
+    type: array
+    items:
+      type: string
+  allowed_paths:
+    type: array
+    items:
+      type: string
+  forbidden_paths:
+    type: array
+    items:
+      type: string
+  validation_methods:
+    type: array
+    items:
+      type: string
+  execution_environment:
+    type: object
+    properties:
+      requires_python:
+        type: boolean
+      conda_env_path:
+        type: string
+      conda_env_name:
+        type: string
+      python_executable:
+        type: string
+      activation_command:
+        type: string
+      package_install_policy:
+        type: string
+    additionalProperties: true
+additionalProperties: true

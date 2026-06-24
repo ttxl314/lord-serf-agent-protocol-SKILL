@@ -1,0 +1,4 @@
+interface:
+  display_name: "Serf"
+  short_description: "Execute lord task packages reliably"
+  default_prompt: "Use $serf to execute a lord-issued task package, validate the work, and return a review-ready handoff."

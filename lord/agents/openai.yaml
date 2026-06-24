@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lord"
+  short_description: "Orchestrate external agents across tools"
+  default_prompt: "Use $lord to split this complex project into external-agent task packages and recovery-ready handoffs."
