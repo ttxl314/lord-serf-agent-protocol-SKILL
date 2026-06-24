@@ -1,5 +1,7 @@
 # Lord and Serf
 
+[![English](https://img.shields.io/badge/Language-English-blue)](README.md)
+
 Cross-platform paired agent skills for multi-agent project orchestration.
 
 - `lord` is the master orchestration skill. It plans complex work, splits projects into external-agent task packages, defines boundaries and acceptance criteria, dispatches work, and owns final review.
