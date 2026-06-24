@@ -100,15 +100,3 @@ Expected result:
 ```text
 Skill is valid!
 ```
-
-## Recommended GitHub Contents
-
-Commit:
-
-- `lord/`
-- `serf/`
-- `README.md`
-- `README.zh-CN.md`
-- `.gitignore`
-
-You usually do not need to commit old zip exports or local temporary files.
