@@ -101,3 +101,25 @@ python "$HOME/.codex/skills/.system/skill-creator/scripts/quick_validate.py" ".\
 Skill is valid!
 ```
 
+
+## Star History
+
+<p align="center">
+  <a href="https://www.star-history.com/#ttxl314/lord-serf-agent-protocol-SKILL&Date">
+    <picture>
+      <source
+        media="(prefers-color-scheme: dark)"
+        srcset="https://api.star-history.com/chart?repos=ttxl314/lord-serf-agent-protocol-SKILL&type=date&theme=dark&legend=top-left"
+      />
+      <source
+        media="(prefers-color-scheme: light)"
+        srcset="https://api.star-history.com/chart?repos=ttxl314/lord-serf-agent-protocol-SKILL&type=date&legend=top-left"
+      />
+      <img
+        alt="Star History Chart"
+        src="https://api.star-history.com/chart?repos=ttxl314/lord-serf-agent-protocol-SKILL&type=date&legend=top-left"
+      />
+    </picture>
+  </a>
+</p>
+
