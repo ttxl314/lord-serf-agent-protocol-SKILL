@@ -7,8 +7,6 @@ Cross-platform paired agent skills for multi-agent project orchestration.
 - `lord` is the master orchestration skill. It plans complex work, splits projects into external-agent task packages, defines boundaries and acceptance criteria, dispatches work, and owns final review.
 - `serf` is the execution-worker skill. It receives a lord-issued task package, reads the required context, performs only the assigned work, self-validates, and returns a review-ready handoff, blocker report, or change request.
 
-Chinese version: [README.zh-CN.md](README.zh-CN.md)
-
 ## Why This Exists
 
 Many agent workflows span multiple tools, platforms, or independent sessions. Chat history alone is not a reliable project state system. `lord` and `serf` define a portable protocol based on Markdown, YAML, templates, and schemas so that a master agent and external execution agents can collaborate without relying on a single vendor or runtime.
