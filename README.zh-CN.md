@@ -101,14 +101,3 @@ python "$HOME/.codex/skills/.system/skill-creator/scripts/quick_validate.py" ".\
 Skill is valid!
 ```
 
-## 推荐上传到 GitHub 的内容
-
-建议提交：
-
-- `lord/`
-- `serf/`
-- `README.md`
-- `README.zh-CN.md`
-- `.gitignore`
-
-旧 zip 包和本地临时文件通常不需要提交。
