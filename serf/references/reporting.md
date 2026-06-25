@@ -1,32 +1,36 @@
 # Reporting
 
-## 0. Human Response Principle
+## 0. Layering Principle
 
-The report file is the authoritative submission layer. The human-facing final response is only a compact notification layer.
+- Task file: requirements.
+- Report file: authoritative Serf submission.
+- Chat: compact notification only.
 
-Detailed evidence belongs in the saved handoff, blocker, or change-request file. Do not repeat that evidence in chat.
+Do not repeat detailed evidence in chat when it is saved in the report.
 
 ## 1. Final Response Gate
 
-Before sending the final response, verify that it contains:
+Return no more than 3 short content lines or bullets, excluding the command:
 
-1. Submission type, task ID, and executed task version.
-2. One concise result, blocker, or change statement.
-3. One concise validation result when applicable.
-4. The saved report path.
-5. A separate fenced `$lord` command.
+1. Submission type, task ID, and executed version.
+2. One result, blocker, or requested-change statement; include one short validation result when applicable.
+3. Saved report path.
+4. A separate copyable `$lord` command.
 
-Keep the human-facing content to no more than 3 short lines or 3 bullets, excluding the `$lord` command.
-
-Do not include the full report when it has been saved successfully.
+Do not add a literal `# Human Summary` heading to chat unless required by the platform. That heading belongs to Markdown report templates.
 
 ## 2. REVIEW
 
-Use `assets/templates/micro-handoff.yaml` for small, low-risk tasks. Use `assets/templates/review-handoff.md` only when fuller evidence is needed.
+Use `assets/templates/micro-handoff.yaml` for Micro tasks and `assets/templates/review-handoff.md` when fuller evidence is required.
 
-The report should contain the evidence lord needs to inspect or reproduce the result. The human-facing response should contain only the outcome, validation summary, and report path.
+The full Markdown report contains only:
 
-Preferred response:
+- Result.
+- Changed outputs.
+- Acceptance evidence.
+- Exceptions when present.
+
+One validation check may support multiple acceptance IDs. Reference it once rather than duplicating logs.
 
 ```text
 REVIEW｜Agent-A-01 v1
@@ -38,94 +42,72 @@ $lord review HANDOFFS/Agent-A-01.yaml
 
 ## 3. BLOCKED
 
-Use `assets/templates/blocker-report.md`.
-
-Put attempts, errors, missing inputs, and requested decisions in the blocker file. The human-facing response should state only the critical blocker and report path.
-
-Preferred response:
+Use `assets/templates/blocker-report.md`. Include the blocker, useful evidence or attempts, the smallest needed lord input, and reusable work or impact only when present.
 
 ```text
 BLOCKED｜Agent-A-01 v1
 Specified Python runtime is unavailable.
-Report: BLOCKERS/Agent-A-01.yaml
+Report: BLOCKERS/Agent-A-01-BLOCKER.md
 
-$lord resolve BLOCKERS/Agent-A-01.yaml
+$lord resolve BLOCKERS/Agent-A-01-BLOCKER.md
 ```
 
-## 4. CHANGE REQUEST
+## 4. CHANGE_REQUEST
 
-Use `assets/templates/change-request.md`.
-
-Put alternatives, affected files, rollback plan, and downstream impact in the change-request file. The human-facing response should state only the essential requested change and report path.
-
-Preferred response:
+Use `assets/templates/change-request.md`. Include only the minimal requested change, why current execution cannot continue safely, material impact, and the decision needed.
 
 ```text
 CHANGE_REQUEST｜Agent-A-01 v1
-Public interface change is required and has not been implemented.
-Report: CHANGE_REQUESTS/Agent-A-01.yaml
+A public interface change is required and has not been implemented.
+Report: CHANGE_REQUESTS/Agent-A-01-CHANGE-REQUEST.md
 
-$lord review CHANGE_REQUESTS/Agent-A-01.yaml
+$lord review CHANGE_REQUESTS/Agent-A-01-CHANGE-REQUEST.md
 ```
 
-## 5. Information Not Repeated in Chat
+## 5. Information Not Repeated
 
-When already recorded in the report file, do not repeat:
+Do not repeat task background, objective, acceptance text, complete file inventories, implementation narrative, unchanged runtime details, full commands, full logs, or non-critical risks.
 
-- Task background or objective recap.
-- Complete file inventories.
-- Implementation details.
-- Runtime and environment details.
-- Full commands or logs.
-- Acceptance criteria text.
-- Non-critical assumptions, risks, or downstream notes.
-- The full report body.
+A critical unresolved risk is one that may cause downstream failure, data loss, security exposure, invalid acceptance, or an irreversible change if ignored.
 
-Mention a risk in chat only when it is critical to the immediate human decision.
+## 6. Representation and Validation
 
-## 6. Platform Cannot Save Files
+- `assets/schemas/submission-envelope.schema.yaml` validates the common return envelope and parsed Markdown front matter.
+- `assets/schemas/micro-handoff.schema.yaml` validates a completed Micro REVIEW YAML report.
+- `assets/schemas/review-handoff.schema.yaml` validates a standard/full REVIEW YAML/JSON equivalent.
+- The full review schema does not validate the Markdown body or its front matter alone.
 
-If the platform cannot create a report file:
+## 7. Platform Cannot Save Files
 
-1. State that the report could not be saved.
-2. Return a compact inline YAML report.
-3. Avoid a long narrative report.
-4. Keep the YAML to fields needed for review.
-
-Example:
+Return a compact inline YAML report and state that it could not be saved. Do not return a long narrative.
 
 ```yaml
-submission_type: REVIEW
+protocol_version: "0.3"
+profile: micro
 project_id: demo-project
 agent_id: Agent-A-01
-executed_task_version: 1
-changed:
-  - src/parser.py
-result:
-  - Fixed blank-line parsing
+executed_task_version: "v1"
+submitted_at: "2026-06-25T15:00:00-04:00"
+submission_type: REVIEW
+task_package_path: TASKS/Agent-A-01.yaml
+changed: [src/parser.py]
+result: [Fixed blank-line parsing]
 validation:
-  - "pytest tests/test_parser.py -q: 8 passed"
+  AC-01:
+    result: PASS
+    evidence: "pytest tests/test_parser.py -q: 8 passed"
+assumptions: []
 issues: []
+report_path: inline
 ```
 
-## 7. Lord Invocation
-
-Use a short path-based command:
+## 8. Lord Invocation
 
 ```text
 $lord review HANDOFFS/Agent-A-01.yaml
+$lord review HANDOFFS/Agent-A-01-HANDOFF.md
+$lord resolve BLOCKERS/Agent-A-01-BLOCKER.md
+$lord review CHANGE_REQUESTS/Agent-A-01-CHANGE-REQUEST.md
 ```
 
-For blockers:
-
-```text
-$lord resolve BLOCKERS/Agent-A-01.yaml
-```
-
-For change requests:
-
-```text
-$lord review CHANGE_REQUESTS/Agent-A-01.yaml
-```
-
-If `$lord` is unsupported on the target platform, replace it with one short instruction to use the lord protocol on the named report path.
+Use only the one command matching the current submission. If `$lord` is unsupported, replace it with one short instruction to use the Lord protocol on the named report path.

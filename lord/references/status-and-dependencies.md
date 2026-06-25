@@ -32,7 +32,7 @@ Common exception flows:
 
 Statuses in task files, handoff files, and chat history are descriptive only. They do not override the authoritative state source.
 
-External agents may submit only `REVIEW`, `BLOCKED`, or a change request. `DONE`, `REJECTED`, and `CANCELLED` may only be written to the authoritative state source by the master agent after review or decision.
+External agents return `submission_type: REVIEW`, `submission_type: BLOCKED`, or `submission_type: CHANGE_REQUEST`. Submission type is not task status. Lord alone updates the authoritative task status, including `DONE`, `REWORK`, `REJECTED`, or `CANCELLED`.
 
 ## 4. Dependency Checks
 
@@ -59,4 +59,4 @@ Allow parallel execution only when all conditions are true:
 
 When a critical dependency is missing, move the task to `BLOCKED` and submit a blocker report.
 
-For non-critical local issues, make reversible and documented assumptions instead of blocking unnecessarily.
+For optional local information only, use a reversible documented assumption when it cannot change scope, interfaces, output meaning, or acceptance. Missing required inputs remain `BLOCKED`.

@@ -1,4 +1,4 @@
-protocol_version: "0.2"
+protocol_version: "0.3"
 profile: micro
 
 project_id:
@@ -13,6 +13,8 @@ changed: []
 result: []
 
 validation: {}
+
+assumptions: []
 
 issues: []
 

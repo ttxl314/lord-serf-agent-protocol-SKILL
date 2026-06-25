@@ -1,0 +1,45 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: Serf submission envelope
+$comment: Validates the common envelope for REVIEW, BLOCKED, and CHANGE_REQUEST. For Markdown reports, validate parsed front matter; report-body structure remains template-defined.
+type: object
+allOf:
+  - not:
+      anyOf:
+        - required: [submission_status]
+        - required: [status]
+        - required: [change_status]
+required:
+  - protocol_version
+  - project_id
+  - agent_id
+  - executed_task_version
+  - submitted_at
+  - submission_type
+  - task_package_path
+  - report_path
+properties:
+  protocol_version:
+    const: "0.3"
+  profile:
+    enum: [micro, standard, full]
+  project_id:
+    type: string
+    minLength: 1
+  agent_id:
+    type: string
+    pattern: "^Agent-[A-Z]-[0-9]{2,}$"
+  executed_task_version:
+    type: string
+    minLength: 1
+  submitted_at:
+    type: string
+    format: date-time
+  submission_type:
+    enum: [REVIEW, BLOCKED, CHANGE_REQUEST]
+  task_package_path:
+    type: string
+    minLength: 1
+  report_path:
+    type: string
+    minLength: 1
+additionalProperties: true

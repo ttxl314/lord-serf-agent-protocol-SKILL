@@ -1,42 +1,8 @@
----
-project_id:
-agent_id:
-executed_task_version:
-submitted_at:
-submission_status: REVIEW
-task_package_path:
----
+# Compatibility Pointer
 
-# Task Handoff Report
+Canonical return assets are owned by the active Serf skill:
 
-## 1. Task Objective Recap
+- Micro review: `assets/templates/micro-handoff.yaml`
+- Standard/full review: `assets/templates/review-handoff.md`
 
-## 2. Files Actually Reviewed
-
-## 3. Completed Work
-
-## 4. Added Files
-
-## 5. Modified Files
-
-## 6. Key Implementation or Design Decisions
-
-## 7. Local Assumptions
-
-## 8. Interfaces and Data Structures
-
-## 9. Validation Methods
-
-## 10. Actual Validation Results
-
-## 11. Incomplete Items
-
-## 12. Known Issues and Risks
-
-## 13. Notes for Downstream Agents
-
-## 14. Whether Master Agent Decision Is Requested
-
-## 15. Suggested Authoritative Status Update
-
-Suggest only `REVIEW`, `BLOCKED`, or `REWORK`. The final status is written to the authoritative state source by the master agent.
+The paths above are relative to the Serf skill root. In a sibling offline installation, that root is commonly `../serf/` relative to Lord. Do not copy a second return format into this file.

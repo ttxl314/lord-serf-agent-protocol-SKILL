@@ -4,58 +4,35 @@
 
 `serf` is the execution-side counterpart to `lord`:
 
-- `lord` creates the task package, launch instruction, environment requirements, dependencies, and acceptance criteria.
-- `serf` reads the task package, executes only the assigned work, validates outputs, and returns a review-ready report.
+- Lord owns task requirements, dispatch, authoritative state, and final acceptance.
+- Serf owns execution, evidence, and return submissions.
 
-Do not use `serf` as a planner or dispatcher. Do not confirm `DONE`; lord owns final acceptance.
+Serf submits only `REVIEW`, `BLOCKED`, or `CHANGE_REQUEST`. It never submits `REWORK`, `DONE`, `REJECTED`, or `CANCELLED`.
 
-## 2. Portable Bundle
+## 2. Canonical Return Assets
 
-When moving this pair to another platform, carry:
+Paths below are relative to the active Serf skill root:
 
-- `serf/SKILL.md`
-- `serf/references/`
-- `serf/assets/templates/`
-- `serf/assets/schemas/`
-- the lord task package and launch instruction
-- any required files and upstream handoffs
+- Common envelope: `assets/schemas/submission-envelope.schema.yaml`
+- Micro review: `assets/templates/micro-handoff.yaml` and `assets/schemas/micro-handoff.schema.yaml`
+- Standard/full review: `assets/templates/review-handoff.md` and `assets/schemas/review-handoff.schema.yaml`
+- Blocker: `assets/templates/blocker-report.md`
+- Change request: `assets/templates/change-request.md`
 
-If the external platform can also access the lord skill package, provide `lord/SKILL.md`, `lord/references/`, and `lord/assets/` as protocol reference material.
+Lord-side return files are compatibility pointers, not separate formats.
 
-`agents/openai.yaml` is optional UI metadata for Codex-like environments. It is not required for execution.
+## 3. Representation Modes
 
-## 3. Platforms Without Skill Support
+Markdown templates are human/shared-workspace formats. Their parsed front matter may be validated by the common envelope schema. Full review schemas validate machine-readable YAML/JSON equivalents and do not validate Markdown bodies or front matter alone.
 
-If the target platform does not support Codex skills:
+## 4. Protocol Envelope
 
-- Use `serf/SKILL.md` as the external agent's system or project instruction.
-- Attach or paste the required `serf/references/` files when needed.
-- Attach or paste the relevant return template.
-- Treat the lord task package as the source of requirements.
-- Keep status values, IDs, file paths, schema keys, and commands literal.
+Use `protocol_version: "0.3"`, string task versions such as `"v1"`, and the common return fields `project_id`, `agent_id`, `executed_task_version`, `submitted_at`, `submission_type`, `task_package_path`, and `report_path`.
 
-## 4. Required Dispatch Inputs
+Do not silently mix legacy `0.2` fields into a `0.3` return. Finish the old task before upgrading or request regeneration as `0.3`.
 
-Before work starts, serf should receive:
+## 5. Required Inputs and Return
 
-- `project_id`
-- `agent_id`
-- `task_version`
-- task package
-- launch instruction, if any
-- required files and upstream handoffs
-- allowed and forbidden file boundaries
-- acceptance criteria and validation methods
-- Python/conda runtime details when Python execution is needed
+Before work starts, identify the task package, work boundaries, acceptance criteria, dependencies, and required runtime. A missing required input produces `BLOCKED`; only optional information may use the documented safe-assumption rule.
 
-If these are missing and cannot be safely inferred from the task package, return a blocker report.
-
-## 5. Required Return to Lord
-
-Return one of:
-
-- Review handoff from `assets/templates/review-handoff.md`.
-- Blocker report from `assets/templates/blocker-report.md`.
-- Change request from `assets/templates/change-request.md`.
-
-Never return `DONE`. Use `REVIEW` when ready for lord to inspect.
+Return the smallest matching report. Do not repeat task background, acceptance text, full logs, or stable environment details. End chat with a short notification and one path-based `$lord` command.

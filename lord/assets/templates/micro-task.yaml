@@ -1,4 +1,4 @@
-protocol_version: "0.2"
+protocol_version: "0.3"
 profile: micro
 
 project_id:
@@ -21,6 +21,7 @@ validation: []
 
 depends_on: []
 
+# Authoritative files whose stable defaults apply; explicit task fields override them.
 inherits: []
 
 return_path: "HANDOFFS/[agent_id].yaml"

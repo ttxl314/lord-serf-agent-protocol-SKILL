@@ -116,12 +116,12 @@ Use when any are true:
 - High-risk, security-sensitive, or difficult-to-reverse work.
 - Detailed rollback, approval, or recovery evidence is required.
 
-Use the full task and handoff templates.
+Use Lord's full task template and the active Serf skill's standard/full review template.
 
 ## 6. Context Economy Rules
 
 - Do not repeat project defaults such as runtime, language, encoding, or package policy when they are already defined in an authoritative project file.
-- Inherit stable defaults by file reference.
+- Inherit stable defaults by file reference. The `inherits` list contains repo-root paths to authoritative files; explicit task fields override inherited defaults.
 - Keep launch instructions to a task-file reference and essential execution note.
 - Use acceptance criterion IDs instead of copying criterion text into handoffs.
 - Use delta instructions for rework.

@@ -26,7 +26,18 @@ Proceed only when:
 - Validation methods are possible or a limitation can be documented.
 - If Python is required, the task package or launch instruction specifies a conda environment path, exact Python executable, or activation command.
 
-If a readiness check fails, submit a blocker report instead of improvising.
+If a required input fails a readiness check, submit `BLOCKED` instead of improvising.
+
+### Safe Assumption Rule
+
+A safe assumption is allowed only when all are true:
+
+- The missing information is not marked required.
+- The assumption is local and reversible.
+- It cannot change task scope, public interfaces, output meaning, or acceptance.
+- It is recorded in the handoff `assumptions` field or section.
+
+Otherwise submit `BLOCKED`.
 
 ## 3. Context Discipline
 

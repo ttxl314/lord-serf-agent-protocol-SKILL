@@ -1,4 +1,6 @@
 ---
+protocol_version: "0.3"
+profile: standard
 project_id:
 agent_id:
 task_version:
@@ -65,14 +67,16 @@ If package installation is allowed, state the policy and constraints. If Python 
 
 ## 14. Handoff Requirements
 
-When complete, submit:
+When complete, use `assets/templates/review-handoff.md` from the active Serf skill and save:
 
 `HANDOFFS/[agent_id]-HANDOFF.md`
 
-The handoff status may only be `REVIEW`. Do not declare `DONE`.
+Set `submission_type: REVIEW`. Do not declare `DONE`.
 
 ## 15. Blocker and Change Rules
 
-If blocked, submit `BLOCKERS/[agent_id]-BLOCKER.md`.
+If blocked, use `assets/templates/blocker-report.md` from the active Serf skill and submit `BLOCKERS/[agent_id]-BLOCKER.md`.
 
-If the work affects public interfaces, architecture, shared data structures, shared paths, or other tasks, submit `CHANGE_REQUESTS/[agent_id]-CHANGE-REQUEST.md` and wait for the master agent decision.
+If the work affects public interfaces, architecture, shared data structures, shared paths, or other tasks, use `assets/templates/change-request.md` from the active Serf skill, submit `CHANGE_REQUESTS/[agent_id]-CHANGE-REQUEST.md`, and wait for the master-agent decision.
+
+The template paths above are relative to the active Serf skill root, not the Lord skill root.

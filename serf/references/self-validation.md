@@ -2,38 +2,36 @@
 
 ## 1. Validation Standard
 
-Validate the actual output, not the intended plan. Prefer checks that lord can reproduce.
+Validate actual outputs against acceptance IDs. Prefer checks Lord can inspect or reproduce.
 
-Use the validation methods specified in the task package first. Add reasonable local checks when they reduce risk and stay within scope.
+Use task-defined methods first. Add a local check only when it materially reduces risk and stays inside scope.
 
-## 2. Evidence to Capture
+## 2. Evidence Economy
 
-Record:
+Record concise evidence:
 
-- Commands or tools run.
-- Test, build, lint, render, compile, or inspection results.
-- Files or artifacts inspected.
-- Manual checks performed.
-- Checks skipped and why.
-- Known limitations of validation.
+- Command or tool and the meaningful result.
+- Artifact or file inspected.
+- Manual check performed.
+- Skipped check and reason.
+- Validation limitation.
 
-## 3. Code Work
+Do not paste full successful logs. One check may support multiple acceptance IDs; reference it once.
 
-For code tasks, validate with the project's normal commands when available. If commands cannot be run, explain the exact blocker, such as missing dependency, unavailable environment, permission issue, or time limit.
+## 3. Rework
 
-For Python tasks, record the actual runtime used:
+For a delta-only REWORK, rerun failed or affected acceptance IDs and only the regression checks required by their dependencies. Do not mechanically rerun every previously successful check.
 
-- conda environment path or name
-- Python executable path
-- `python --version` result when available
-- activation or invocation command used
+## 4. Code Work
 
-Run validation with the specified runtime from the task package. Do not validate with a different interpreter unless the handoff clearly marks that limitation.
+Use the project's normal tests, build, lint, or static checks when available. If a command cannot run, record the exact missing dependency, runtime, permission, or other blocker.
 
-## 4. Document or Content Work
+For Python work, record the actual conda environment or executable, invocation command, and Python version when relevant. Do not silently validate with a different interpreter.
 
-For document, design, or content tasks, verify output completeness, formatting requirements, terminology, citations, filenames, and any required review notes.
+## 5. Document or Content Work
 
-## 5. CJK and Localized Text
+Verify required output completeness, format, terminology, citations, filenames, and identified human-review points. Do not produce a second narrative summary when the artifact and acceptance evidence already show the result.
 
-When Chinese or other CJK text is involved, check UTF-8 encoding, full-width punctuation, invisible spaces, non-ASCII paths, shell quoting, Unicode-aware length or regex behavior, and rendering width where relevant.
+## 6. CJK and Localized Text
+
+When relevant, check UTF-8 encoding, full-width punctuation, invisible spaces, non-ASCII paths, shell quoting, Unicode-aware matching, and rendering width.

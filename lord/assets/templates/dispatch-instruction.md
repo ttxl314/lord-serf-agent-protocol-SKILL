@@ -1,4 +1,5 @@
 ---
+protocol_version: "0.3"
 project_id:
 agent_id:
 task_version:
@@ -20,42 +21,38 @@ execution_environment:
 
 ## Invocation Header
 
-If the target platform supports Codex-style skill invocation or an equivalent custom-agent shortcut, start the dispatch message with:
+If the target platform supports skill invocation, start with:
 
 ```text
 $serf
 ```
 
-If the target platform does not support `$serf`, attach or paste `serf/SKILL.md` as the execution-worker instruction before this launch instruction.
+If `$serf` is unsupported, load the active Serf skill instruction once for the independent session. Do not resend the full skill or references on later tasks unless the protocol version changes.
 
-You are the external execution agent. Execute only the formal task package referenced by `task_package_path`. Do not treat this launch instruction as a second task definition.
+Execute only the formal task package at `task_package_path`. This launch instruction is not a second task definition.
 
 ## Read First
 
 1. Formal task package:
-2. Required files:
-3. Upstream handoff files:
+2. Required files not already referenced by the task:
+3. Required upstream handoffs:
 
 ## Execution Requirements
 
-- Verify `project_id`, `agent_id`, and `task_version`.
-- If Python is required, use the task package's specified conda environment path, Python executable, or activation command. Do not guess a different environment.
-- Work only within the allowed task boundary.
-- Do not modify forbidden files.
-- Record files actually read, actual changes, validation methods, and validation results.
-- End the final response with a very brief `# Human Summary` of 1-3 short lines or at most 3 bullets, plus a separate copyable `$lord` invocation command for master-agent review.
-- Submit a handoff report when complete; the status may only be `REVIEW`.
-- Submit a blocker report if the task cannot continue.
-- Submit a change request if public interfaces, architecture, or other task boundaries need to change.
-
-## Python Environment
-
-When `requires_python: true`, the launch instruction must repeat the environment values from the task package so the external agent can execute commands reproducibly.
+- Verify `protocol_version`, `project_id`, `agent_id`, and `task_version`.
+- Use the task-defined runtime; do not guess a different environment.
+- Stay inside the declared boundary and do not modify forbidden files.
+- Save detailed evidence in the return file.
+- End with a brief human-facing notification of 1-3 lines or bullets, followed by a separate copyable `$lord` command. Do not add a literal `# Human Summary` heading to chat unless the platform requires one.
+- Return only `submission_type: REVIEW`, `BLOCKED`, or `CHANGE_REQUEST`.
 
 ## Return Format
 
-Use the matching template:
+Use the matching canonical asset from the active Serf skill:
 
-- `assets/templates/handoff.md`
-- `assets/templates/blocker.md`
-- `assets/templates/change-request.md`
+- Micro `REVIEW`: `assets/templates/micro-handoff.yaml`
+- Standard/full `REVIEW`: `assets/templates/review-handoff.md`
+- `BLOCKED`: `assets/templates/blocker-report.md`
+- `CHANGE_REQUEST`: `assets/templates/change-request.md`
+
+Path base: the paths above are relative to the active Serf skill root. In a sibling offline installation, the Serf root is commonly `../serf/` relative to the Lord skill root. Do not use Lord compatibility pointers as return payloads.
