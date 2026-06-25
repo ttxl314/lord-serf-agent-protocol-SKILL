@@ -7,6 +7,10 @@ change_status: PROPOSED
 task_package_path:
 ---
 
+# Human Summary
+
+Briefly state the requested change, why it is needed, and whether it blocks execution.
+
 # Change Request
 
 ## 1. Change Target
@@ -30,3 +34,11 @@ task_package_path:
 ## 10. Requested Lord Decision
 
 Lord should answer with `APPROVED`, `REJECTED`, or `NEEDS_INFO`.
+
+# Lord Change-Request Invocation
+
+```text
+$lord
+Review this serf change request for project_id: [project_id], agent_id: [agent_id], task_version: [task_version].
+Approve, reject, or revise the requested change before serf continues.
+```

@@ -7,6 +7,10 @@ submission_status: REVIEW
 task_package_path:
 ---
 
+# Human Summary
+
+Briefly state what was completed, what was validated, and what lord should inspect.
+
 # Task Handoff Report
 
 ## 1. Task Objective Recap
@@ -44,3 +48,12 @@ For Python work, record the conda environment path, Python executable, activatio
 ## 16. Suggested Status
 
 Suggest only `REVIEW`, `BLOCKED`, or `REWORK`. Lord owns final acceptance and `DONE`.
+
+# Lord Review Invocation
+
+```text
+$lord
+Review the returned serf report for project_id: [project_id], agent_id: [agent_id], executed_task_version: [executed_task_version].
+Use the attached or pasted handoff content as the review input.
+Do not mark DONE unless the actual outputs satisfy the task package acceptance criteria.
+```

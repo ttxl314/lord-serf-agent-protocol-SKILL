@@ -36,7 +36,8 @@ The execution agent must:
 7. If blocked, produce a blocker report from `assets/templates/blocker-report.md`.
 8. If a boundary or interface change is needed, produce a change request from `assets/templates/change-request.md`.
 9. If work is ready for master review, produce a handoff from `assets/templates/review-handoff.md` with `submission_status: REVIEW`.
-10. Adapt output language using `references/output-language.md`.
+10. Include a brief human-readable summary and a separate `$lord` review invocation command.
+11. Adapt output language using `references/output-language.md`.
 
 ## Non-Negotiables
 
@@ -75,3 +76,4 @@ When responding after execution, include:
 - Assumptions, risks, and incomplete items.
 - Whether the submission is `REVIEW`, `BLOCKED`, or a change request.
 - The full handoff, blocker report, or change request content for lord.
+- A separate copyable `$lord` invocation command that asks lord to review the returned report.

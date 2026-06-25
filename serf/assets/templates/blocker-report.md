@@ -7,6 +7,10 @@ status: BLOCKED
 task_package_path:
 ---
 
+# Human Summary
+
+Briefly state what is blocked and what lord must provide or decide.
+
 # Blocker Report
 
 ## 1. Blocker Reason
@@ -26,3 +30,11 @@ Include missing or unusable Python/conda runtime details here when Python execut
 ## 7. Recommended Resolution
 
 ## 8. Whether a Change Request Is Needed
+
+# Lord Blocker Invocation
+
+```text
+$lord
+Review this serf blocker report for project_id: [project_id], agent_id: [agent_id], task_version: [task_version].
+Resolve the blocker or update the task package before redispatch.
+```
