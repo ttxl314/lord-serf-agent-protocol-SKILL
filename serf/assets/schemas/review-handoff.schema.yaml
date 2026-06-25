@@ -1,62 +1,80 @@
 $schema: "https://json-schema.org/draft/2020-12/schema"
-title: Serf review handoff
+title: Serf standard/full review handoff
+$comment: This schema validates a machine-readable YAML/JSON equivalent of the standard/full REVIEW report. It does not validate the Markdown body or front matter alone.
 type: object
+allOf:
+  - not:
+      anyOf:
+        - required: [submission_status]
+        - required: [status]
+        - required: [change_status]
 required:
+  - protocol_version
+  - profile
   - project_id
   - agent_id
   - executed_task_version
-  - submission_status
+  - submitted_at
+  - submission_type
   - task_package_path
-  - files_reviewed
-  - completed_work
-  - outputs
+  - changed
+  - result
   - validation
+  - issues
+  - report_path
   - lord_invocation
 properties:
+  protocol_version:
+    const: "0.3"
+  profile:
+    enum: [standard, full]
   project_id:
     type: string
+    minLength: 1
   agent_id:
     type: string
-    pattern: "^Agent-[A-Z][0-9]*-[0-9]{2,}$"
+    pattern: "^Agent-[A-Z]-[0-9]{2,}$"
   executed_task_version:
     type: string
-  submission_status:
-    enum: [REVIEW]
+    minLength: 1
+  submitted_at:
+    type: string
+    format: date-time
+  submission_type:
+    const: REVIEW
   task_package_path:
     type: string
-  files_reviewed:
+    minLength: 1
+  changed:
     type: array
+    minItems: 1
     items:
       type: string
-  completed_work:
+  result:
     type: array
-    items:
-      type: string
-  outputs:
-    type: array
+    minItems: 1
     items:
       type: string
   validation:
     type: object
-  human_summary:
-    type: string
-  lord_invocation:
-    type: string
-  runtime_used:
-    type: object
-    properties:
-      conda_env_path:
-        type: string
-      conda_env_name:
-        type: string
-      python_executable:
-        type: string
-      activation_command:
-        type: string
-      python_version:
-        type: string
-    additionalProperties: true
+    minProperties: 1
+    patternProperties:
+      "^AC-[0-9]{2,}$":
+        type: object
+        required: [result, evidence]
+        properties:
+          result:
+            enum: [PASS, FAIL, SKIPPED]
+          evidence:
+            type: string
+            minLength: 1
+        additionalProperties: false
+    additionalProperties: false
   assumptions:
+    type: array
+    items:
+      type: string
+  issues:
     type: array
     items:
       type: string
@@ -68,4 +86,15 @@ properties:
     type: array
     items:
       type: string
-additionalProperties: true
+  requested_lord_decision:
+    type: string
+  runtime_used:
+    type: object
+    additionalProperties: true
+  report_path:
+    type: string
+    minLength: 1
+  lord_invocation:
+    type: string
+    minLength: 1
+additionalProperties: false

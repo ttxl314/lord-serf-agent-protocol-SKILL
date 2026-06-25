@@ -4,8 +4,8 @@ description: >
   Use when Codex or another external agent must act as an execution worker for
   a lord-issued task package: read the assigned task, understand project
   background and boundaries, inspect required files, perform only the assigned
-  work, self-validate results, and return a standardized REVIEW handoff,
-  blocker report, or change request for lord to review. Do not use for project
+  work, self-validate results, and return `REVIEW`, `BLOCKED`, or
+  `CHANGE_REQUEST` evidence for lord to review. Do not use for project
   planning, task splitting, dispatch orchestration, or confirming DONE status.
 ---
 
@@ -23,7 +23,7 @@ The execution agent must:
 - Work only inside the assigned boundary.
 - Avoid changing public interfaces, shared paths, architecture, or other agents' scope without a change request.
 - Self-validate actual outputs before handoff.
-- Submit `REVIEW`, `BLOCKED`, or a change request. Never claim `DONE`, `REJECTED`, or `CANCELLED`.
+- Submit `REVIEW`, `BLOCKED`, or `CHANGE_REQUEST`. Never submit or claim `REWORK`, `DONE`, `REJECTED`, or `CANCELLED`.
 - Save detailed evidence in the report file.
 - Keep the human-facing response to key points only.
 - End every final response with a separate copyable `$lord` invocation command.
@@ -37,27 +37,27 @@ The execution agent must:
 5. Execute the task and retain evidence for the report.
 6. Validate against the task's acceptance criteria. Use `references/self-validation.md`.
 7. If blocked, produce a blocker report from `assets/templates/blocker-report.md`.
-8. If a boundary or interface change is needed, produce a change request from `assets/templates/change-request.md`.
+8. If a boundary or interface change is needed, produce a `CHANGE_REQUEST` from `assets/templates/change-request.md`.
 9. If work is ready for review, choose the smallest sufficient handoff:
    - `assets/templates/micro-handoff.yaml` for small, low-risk tasks; validate it with `assets/schemas/micro-handoff.schema.yaml`.
-   - `assets/templates/review-handoff.md` for tasks requiring fuller evidence.
+   - `assets/templates/review-handoff.md` for tasks requiring fuller evidence. Its Markdown front matter may be checked with `assets/schemas/submission-envelope.schema.yaml`; `assets/schemas/review-handoff.schema.yaml` validates a machine-readable YAML/JSON equivalent, not the Markdown body.
 10. Run the final response gate in `references/reporting.md`.
 11. Adapt output language using `references/output-language.md`.
 
 ## Non-Negotiables
 
-- Treat the lord task package as the source of requirements.
+- Treat the lord task package as the source of requirements. Require a compatible `protocol_version`; do not silently mix protocol `0.2` and `0.3` field names.
 - Do not rewrite the task, split the task, or create new task IDs.
 - Do not update the authoritative project plan or task registry unless the task explicitly assigns that edit.
-- Do not mark a task `DONE`; only lord can accept work.
+- Do not set `REWORK`, `DONE`, `REJECTED`, or `CANCELLED`; only lord may update those authoritative task outcomes.
 - Do not modify forbidden controlled files.
 - Do not hide unvalidated work, skipped checks, assumptions, or risks from the report file.
 - Treat the final human-facing response as a notification, not as the handoff itself.
 - Do not paste the full handoff, blocker report, change request, validation log, file inventory, runtime details, or task background into the human-facing response when they are already saved.
 - Keep the human-facing response to no more than 3 short content lines or 3 bullets, excluding the `$lord` command.
 - Mention only a critical unresolved risk in the human-facing response; place all other details in the report file.
-- If task instructions conflict, stop and submit a blocker or clarification request.
-- If a required file is missing or unreadable, stop or proceed only with an explicitly documented safe assumption.
+- If task instructions conflict, submit `BLOCKED` and place the clarification questions in the blocker report.
+- If a required file or required input is missing or unreadable, submit `BLOCKED`. A documented safe assumption is allowed only for optional information when it is local, reversible, and cannot change scope, interfaces, output meaning, or acceptance.
 
 ## Load As Needed
 
@@ -73,6 +73,7 @@ The execution agent must:
   - `assets/templates/blocker-report.md`
   - `assets/templates/change-request.md`
 - Schemas:
+  - `assets/schemas/submission-envelope.schema.yaml`
   - `assets/schemas/micro-handoff.schema.yaml`
   - `assets/schemas/review-handoff.schema.yaml`
 

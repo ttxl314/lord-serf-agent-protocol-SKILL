@@ -28,10 +28,10 @@ The master agent must:
 - Split work into bounded tasks with dependencies, versions, and acceptance criteria.
 - Assign IDs with `Agent-[subproject-letter]-[sequence]`, such as `Agent-A-01`.
 - Select a dispatch mode and a capability-based adapter.
-- Generate task packages, launch instructions, and return templates.
+- Generate task packages and launch instructions, and select the matching Serf-owned return template.
 - Review external agent outputs and update the single authoritative state source.
 
-External agents may submit `REVIEW`, `BLOCKED`, or change requests. Only the master agent may confirm `DONE`, `REJECTED`, or `CANCELLED`.
+External agents may submit `REVIEW`, `BLOCKED`, or `CHANGE_REQUEST`. Only the master agent may set `REWORK`, `DONE`, `REJECTED`, or `CANCELLED` in the authoritative state source.
 
 ## Workflow
 
@@ -49,9 +49,9 @@ External agents may submit `REVIEW`, `BLOCKED`, or change requests. Only the mas
 9. Generate the smallest sufficient task package:
    - Use `assets/templates/micro-task.yaml` for `micro`.
    - Use `assets/templates/agent-task.md` for `standard` or `full`, omitting sections that do not apply.
-   - Validate `micro` packages with `assets/schemas/micro-task.schema.yaml`; use the full schemas for `standard` or `full` machine-readable packages.
+   - Validate `micro` packages with `assets/schemas/micro-task.schema.yaml`; `assets/schemas/task-package.schema.yaml` validates machine-readable YAML/JSON equivalents for `standard` or `full`, not Markdown front matter alone.
 10. Generate launch instructions that start with `$serf` when the target platform supports skill-style invocation, then point to the formal task package instead of restating a second source of truth.
-11. Process handoffs, blockers, and change requests with the templates in `assets/templates/`.
+11. Process `REVIEW`, `BLOCKED`, and `CHANGE_REQUEST` submissions with the canonical assets from the active Serf skill. Inside that skill, return templates live under `assets/templates/` and return schemas under `assets/schemas/`; Lord-side return files are compatibility pointers only.
 12. Adapt output language using `references/output-language-and-cjk-code.md`.
 13. Review actual outputs using `references/review-and-acceptance.md`; update the authoritative state source only after review.
 
@@ -92,10 +92,10 @@ Use `full` when any of these apply:
 
 - Never claim an external agent has been started unless the current environment directly invoked it through a verified API, connector, or automation.
 - Keep one authoritative state source: `TASKS.md`, `PROJECT_PLAN.md`, or `TASK_REGISTRY.yaml`, depending on project scale.
-- Treat task files as requirements and handoff files as submissions; neither overrides the authoritative state source.
-- Require `project_id`, `agent_id`, `task_version`, and `updated_at` in task packages.
+- Treat task files as requirements and Serf return files as submissions; neither overrides the authoritative state source.
+- Require `protocol_version: "0.3"`, `project_id`, `agent_id`, `task_version`, and `updated_at` in task packages; do not silently mix protocol versions.
 - For Python tasks, specify the conda environment path, exact Python executable, or activation command so external agents can run the same runtime.
-- Require handoffs to include `executed_task_version`; do not accept stale-version results directly.
+- Require every Serf return to include `executed_task_version`; do not accept stale-version results directly.
 - Make required files, inputs, outputs, boundaries, dependencies, validation, and acceptance criteria explicit, but only to the level needed for the selected task profile.
 - Use the smallest project structure and task profile that support the work.
 - Default output language to the current conversation/window language unless the user specifies another output language.
@@ -123,14 +123,23 @@ Use `full` when any of these apply:
   - `assets/templates/micro-task.yaml`
   - `assets/templates/agent-task.md`
   - `assets/templates/dispatch-instruction.md`
-  - `assets/templates/handoff.md`
-  - `assets/templates/blocker.md`
-  - `assets/templates/change-request.md`
   - `assets/templates/recovery-summary.md`
-- Schemas:
+- Canonical return templates in the active Serf skill:
+  - Serf root → `assets/templates/micro-handoff.yaml`
+  - Serf root → `assets/templates/review-handoff.md`
+  - Serf root → `assets/templates/blocker-report.md`
+  - Serf root → `assets/templates/change-request.md`
+- Lord compatibility pointers only:
+  - Lord root → `assets/templates/handoff.md`
+  - Lord root → `assets/templates/blocker.md`
+  - Lord root → `assets/templates/change-request.md`
+- Task schemas:
   - `assets/schemas/micro-task.schema.yaml`
   - `assets/schemas/task-package.schema.yaml`
-  - `assets/schemas/handoff.schema.yaml`
+- Canonical return schemas in the active Serf skill:
+  - Serf root → `assets/schemas/submission-envelope.schema.yaml`
+  - Serf root → `assets/schemas/micro-handoff.schema.yaml`
+  - Serf root → `assets/schemas/review-handoff.schema.yaml`
 
 ## Minimum Orchestration Output
 

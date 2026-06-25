@@ -1,59 +1,39 @@
 ---
+protocol_version: "0.3"
+profile: standard
 project_id:
 agent_id:
 executed_task_version:
 submitted_at:
-submission_status: REVIEW
+submission_type: REVIEW
 task_package_path:
+report_path: "HANDOFFS/[agent_id]-HANDOFF.md"
 ---
 
 # Human Summary
 
-1-3 short lines or at most 3 bullets: what was completed, what was validated, and what lord should inspect.
+1-3 short lines or bullets: outcome, validation summary, and the item lord should inspect.
 
-# Task Handoff Report
+# Review Handoff
 
-## 1. Task Objective Recap
+## Result
 
-## 2. Files Actually Reviewed
+State only the completed outcome. Do not restate the task objective.
 
-## 3. Completed Work
+## Changed Outputs
 
-## 4. Added Files
+List added, modified, or generated outputs. Mention read-only inputs only when they materially affect review.
 
-## 5. Modified Files
+## Acceptance Evidence
 
-## 6. Key Implementation or Design Decisions
+Map acceptance IDs to concise results and evidence. One check may support multiple acceptance IDs; do not duplicate logs.
 
-## 7. Local Assumptions
+## Exceptions
 
-## 8. Interfaces and Data Structures
-
-## 9. Validation Methods
-
-## 10. Actual Validation Results
-
-## 11. Runtime Used
-
-For Python work, record the conda environment path, Python executable, activation command, and Python version actually used.
-
-## 12. Incomplete Items
-
-## 13. Known Issues and Risks
-
-## 14. Notes for Downstream Agents
-
-## 15. Decision Requested from Lord
-
-## 16. Suggested Status
-
-Suggest only `REVIEW`, `BLOCKED`, or `REWORK`. Lord owns final acceptance and `DONE`.
+Omit this section when empty. Otherwise include only relevant assumptions, skipped checks, risks, incomplete items, interface impact, or a requested lord decision.
 
 # Lord Review Invocation
 
 ```text
-$lord
-Review the returned serf report for project_id: [project_id], agent_id: [agent_id], executed_task_version: [executed_task_version].
-Use the attached or pasted handoff content as the review input.
-Do not mark DONE unless the actual outputs satisfy the task package acceptance criteria.
+$lord review HANDOFFS/[agent_id]-HANDOFF.md
 ```

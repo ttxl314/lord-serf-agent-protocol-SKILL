@@ -1,32 +1,5 @@
----
-project_id:
-agent_id:
-task_version:
-requested_at:
-change_status: PROPOSED
-task_package_path:
----
+# Compatibility Pointer
 
-# Change Request
+Use `assets/templates/change-request.md` from the active Serf skill.
 
-## 1. Change Target
-
-## 2. Reason for Change
-
-## 3. Current Limitation
-
-## 4. Proposed Approach
-
-## 5. Alternatives
-
-## 6. Affected Files
-
-## 7. Affected Tasks
-
-## 8. Validation and Rollback Plan
-
-## 9. Whether This Blocks the Current Task
-
-## 10. Master Agent Decision Record
-
-Filled by the master agent: `APPROVED`, `REJECTED`, or `NEEDS_INFO`.
+The path is relative to the Serf skill root. In a sibling offline installation, that root is commonly `../serf/` relative to Lord. This file does not define a separate change-request format.

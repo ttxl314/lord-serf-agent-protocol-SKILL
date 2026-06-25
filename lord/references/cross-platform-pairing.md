@@ -2,69 +2,45 @@
 
 ## 1. Paired Skills
 
-`lord` and `serf` are a paired protocol:
+`lord` and `serf` are one paired protocol:
 
-- `lord`: master planner, task splitter, dispatcher, state owner, and final reviewer.
-- `serf`: external execution worker that reads one lord task package, performs bounded work, self-validates, and returns `REVIEW`, `BLOCKED`, or a change request.
+- `lord`: planning, task packages, dispatch, authoritative state, and final acceptance.
+- `serf`: bounded execution, self-validation, and return submissions.
 
-Use `lord` for the controlling agent and `serf` for each external or independent execution agent.
+Serf submits only `REVIEW`, `BLOCKED`, or `CHANGE_REQUEST`. Lord alone may set authoritative outcomes such as `REWORK`, `DONE`, `REJECTED`, or `CANCELLED`.
 
-## 2. Portable Bundle
+## 2. Authority Map
 
-When moving this pair to another platform, carry:
+- Task requirements and task schemas are owned by Lord.
+- Return templates and return schemas are owned by Serf.
+- Lord-side `handoff.md`, `blocker.md`, and `change-request.md` are compatibility pointers only.
+- The project plan or task registry is the only authoritative task-status source.
 
-- `lord/SKILL.md`
-- `lord/references/`
-- `lord/assets/templates/`
-- `lord/assets/schemas/`
-- `serf/SKILL.md`
-- `serf/references/`
-- `serf/assets/templates/`
-- `serf/assets/schemas/`
+Do not maintain a second copy of a Serf return contract inside Lord.
 
-`agents/openai.yaml` is optional UI metadata for Codex-like environments. It is not required for the protocol.
+## 3. Path Base
 
-## 3. Platforms Without Skill Support
+Paths shown as `assets/...` in return instructions are relative to the active Serf skill root. In a sibling offline installation such as `.codex/skills/lord` and `.codex/skills/serf`, the Serf root is commonly `../serf/` relative to Lord. In platforms with skill discovery, prefer the logical form `active Serf skill → assets/...` instead of hard-coding a filesystem path.
 
-If the target platform does not support Codex skills:
+## 4. Protocol Envelope
 
-- Use `lord/SKILL.md` as the master agent's system or project instruction.
-- Use `serf/SKILL.md` as the external agent's system or project instruction.
-- Provide referenced files as attachments, project files, or pasted context.
-- Keep templates available to both sides.
-- Preserve literal IDs, paths, statuses, and schema keys.
+Protocol `0.3` uses string task versions and the common return fields `protocol_version`, `project_id`, `agent_id`, `executed_task_version`, `submitted_at`, `submission_type`, `task_package_path`, and `report_path`.
 
-## 4. Dispatch Handshake
+Do not silently combine protocol `0.2` fields such as `submission_status`, `status: BLOCKED`, or `change_status` with protocol `0.3` returns. Finish an active `0.2` task before upgrading, or regenerate it as `0.3`.
 
-Every lord-to-serf dispatch should include:
+## 5. Representation Modes
 
-- Invocation header `$serf` when the target platform supports skill-style invocation.
-- If `$serf` is unsupported, the content of `serf/SKILL.md` or an equivalent execution-worker instruction.
-- Formal task package, preferably from `lord/assets/templates/agent-task.md`.
-- Launch instruction, preferably from `lord/assets/templates/dispatch-instruction.md`.
-- Required files and upstream handoffs.
-- Expected return template path or pasted template.
-- Python/conda runtime details when Python execution is needed.
+- Markdown templates are human/shared-workspace formats.
+- Machine schemas validate YAML/JSON equivalents.
+- `submission-envelope.schema.yaml` may validate parsed Markdown front matter.
+- A full machine schema does not validate a Markdown body or front matter alone.
 
-Every serf-to-lord return should include:
+## 6. Dispatch Handshake
 
-- a brief human-readable summary of 1-3 short lines or at most 3 bullets
-- `executed_task_version`
-- files actually read
-- files added or modified
-- validation methods and actual results
-- runtime used for Python work
-- assumptions, risks, and incomplete items
-- `submission_status: REVIEW`, `status: BLOCKED`, or a change request
-- a separate copyable `$lord` invocation command for review
+Dispatch only the Serf invocation, formal task package path, required unavailable inputs, and essential runtime note. Do not repeat task goals, boundaries, acceptance text, or stable context already available by reference.
 
-## 5. Non-Codex Naming
+A Serf return contains one canonical report path, concise evidence, and one short path-based `$lord` command. Chat is notification only.
 
-In platforms where `$lord` and `$serf` are not supported, refer to them as:
+## 7. Non-Codex Naming
 
-- Lord protocol: master orchestration instructions.
-- Serf protocol: external execution-worker instructions.
-
-The names are convenience handles, not platform dependencies.
-
-When generating a manual-copy dispatch, lord should still include `$serf` as the first line for platforms that can use it, followed by a fallback note for platforms that cannot.
+Where `$lord` and `$serf` are unsupported, call them the Lord orchestration protocol and Serf execution protocol. The names are handles; file contracts remain authoritative.

@@ -1,40 +1,39 @@
 ---
+protocol_version: "0.3"
+profile: standard
 project_id:
 agent_id:
-task_version:
-reported_at:
-status: BLOCKED
+executed_task_version:
+submitted_at:
+submission_type: BLOCKED
 task_package_path:
+report_path: "BLOCKERS/[agent_id]-BLOCKER.md"
 ---
 
 # Human Summary
 
-1-3 short lines or at most 3 bullets: what is blocked and what lord must provide or decide.
+1-3 short lines or bullets: the critical blocker and what lord must provide or decide.
 
 # Blocker Report
 
-## 1. Blocker Reason
+## Blocker
 
-## 2. Work Completed So Far
+State the missing required input, permission, dependency, runtime, or decision.
 
-## 3. Missing Files, Inputs, Permissions, or Decisions
+## Evidence and Useful Attempts
 
-Include missing or unusable Python/conda runtime details here when Python execution is required.
+Include only attempts that narrow the cause or can prevent repeated work. Do not paste full logs.
 
-## 4. Attempts Already Made
+## Needed from Lord
 
-## 5. Affected Outputs and Downstream Tasks
+State the smallest input or decision required to continue.
 
-## 6. Questions for Lord
+## Reusable Work and Impact
 
-## 7. Recommended Resolution
-
-## 8. Whether a Change Request Is Needed
+Omit when empty. Record completed reusable work and affected outputs or downstream tasks.
 
 # Lord Blocker Invocation
 
 ```text
-$lord
-Review this serf blocker report for project_id: [project_id], agent_id: [agent_id], task_version: [task_version].
-Resolve the blocker or update the task package before redispatch.
+$lord resolve BLOCKERS/[agent_id]-BLOCKER.md
 ```

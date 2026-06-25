@@ -1,44 +1,39 @@
 ---
+protocol_version: "0.3"
+profile: standard
 project_id:
 agent_id:
-task_version:
-requested_at:
-change_status: PROPOSED
+executed_task_version:
+submitted_at:
+submission_type: CHANGE_REQUEST
 task_package_path:
+report_path: "CHANGE_REQUESTS/[agent_id]-CHANGE-REQUEST.md"
 ---
 
 # Human Summary
 
-1-3 short lines or at most 3 bullets: the requested change, why it is needed, and whether it blocks execution.
+1-3 short lines or bullets: the requested change, why it is required, and whether execution is blocked.
 
 # Change Request
 
-## 1. Change Target
+## Minimal Requested Change
 
-## 2. Reason for Change
+Describe only the smallest boundary, interface, path, architecture, or acceptance-plan change required.
 
-## 3. Current Limitation
+## Why the Current Task Cannot Continue Safely
 
-## 4. Proposed Approach
+Explain the concrete limitation without restating the full task.
 
-## 5. Alternatives
+## Impact
 
-## 6. Affected Files
+List affected files, interfaces, tasks, and rollback or validation considerations only when they affect the decision.
 
-## 7. Affected Tasks
+## Decision Needed
 
-## 8. Validation and Rollback Plan
-
-## 9. Whether This Blocks the Current Task
-
-## 10. Requested Lord Decision
-
-Lord should answer with `APPROVED`, `REJECTED`, or `NEEDS_INFO`.
+Request `APPROVED`, `REJECTED`, or `NEEDS_INFO` and identify the decision owner.
 
 # Lord Change-Request Invocation
 
 ```text
-$lord
-Review this serf change request for project_id: [project_id], agent_id: [agent_id], task_version: [task_version].
-Approve, reject, or revise the requested change before serf continues.
+$lord review CHANGE_REQUESTS/[agent_id]-CHANGE-REQUEST.md
 ```
