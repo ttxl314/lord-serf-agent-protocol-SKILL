@@ -1,66 +1,131 @@
 # Reporting
 
-## 0. Final Response Gate
+## 0. Human Response Principle
 
-Before sending any final response for a completed task, blocker, or change request, verify that the response contains all of these sections:
+The report file is the authoritative submission layer. The human-facing final response is only a compact notification layer.
 
-1. `# Human Summary`
-2. The full handoff, blocker report, or change request content
-3. A separate lord invocation section
-4. A fenced command block whose first line is `$lord`, unless the target platform does not support `$lord`
+Detailed evidence belongs in the saved handoff, blocker, or change-request file. Do not repeat that evidence in chat.
 
-If any item is missing, do not send the final response yet. Add the missing section first.
+## 1. Final Response Gate
 
-Keep `# Human Summary` concise: 1-3 short lines or at most 3 bullets. Do not duplicate the full report there.
+Before sending the final response, verify that it contains:
 
-## 1. REVIEW Handoff
+1. Submission type, task ID, and executed task version.
+2. One concise result, blocker, or change statement.
+3. One concise validation result when applicable.
+4. The saved report path.
+5. A separate fenced `$lord` command.
 
-Use `assets/templates/review-handoff.md` when the assigned task is ready for lord's review. The status must be `REVIEW`, not `DONE`.
+Keep the human-facing content to no more than 3 short lines or 3 bullets, excluding the `$lord` command.
 
-Start the final response with a very brief human-readable summary. Keep it to 1-3 short lines or at most 3 bullets: what was done, what was validated, and what lord should review.
+Do not include the full report when it has been saved successfully.
 
-The handoff must include enough evidence for lord to inspect or reproduce the result:
+## 2. REVIEW
 
-- Task version executed.
-- Files actually read.
-- Added or modified files.
-- Completed work.
-- Validation performed.
-- Actual validation results.
-- Assumptions, risks, and incomplete items.
-- Any downstream notes.
+Use `assets/templates/micro-handoff.yaml` for small, low-risk tasks. Use `assets/templates/review-handoff.md` only when fuller evidence is needed.
 
-After the handoff, include a separate copyable lord invocation command. It should start with `$lord` when the platform supports skill-style invocation and should ask lord to review the exact returned report or handoff path.
+The report should contain the evidence lord needs to inspect or reproduce the result. The human-facing response should contain only the outcome, validation summary, and report path.
 
-## 2. Blocker Report
-
-Use `assets/templates/blocker-report.md` when execution cannot continue because input, permissions, dependencies, decisions, or task clarity are missing.
-
-Blocker reports should be precise and actionable. Include what was attempted and what lord must decide or provide.
-
-After a blocker report, include a separate `$lord` invocation command asking lord to resolve the blocker or update the task package.
-
-## 3. Change Request
-
-Use `assets/templates/change-request.md` when success requires changing boundaries, public interfaces, architecture, shared paths, shared data structures, or another task's scope.
-
-Do not implement the requested change unless lord approves or the original task package explicitly delegated that authority.
-
-After a change request, include a separate `$lord` invocation command asking lord to approve, reject, or revise the requested change.
-
-## 4. Output Completeness
-
-If the platform cannot create files directly, return the complete report content in the conversation so the user can paste it into the requested path.
-
-## 5. Lord Invocation Format
-
-Use this shape for the copyable command:
+Preferred response:
 
 ```text
-$lord
-Review the returned serf report for project_id: [project_id], agent_id: [agent_id], executed_task_version: [executed_task_version].
-Use the attached or pasted handoff/blocker/change-request content as the review input.
-Do not mark DONE unless the actual outputs satisfy the task package acceptance criteria.
+REVIEW｜Agent-A-01 v1
+Fixed CSV blank-line parsing; 8 tests passed.
+Report: HANDOFFS/Agent-A-01.yaml
+
+$lord review HANDOFFS/Agent-A-01.yaml
 ```
 
-If `$lord` is unsupported on the target platform, replace the first line with: `Use the lord protocol to review this serf report.`
+## 3. BLOCKED
+
+Use `assets/templates/blocker-report.md`.
+
+Put attempts, errors, missing inputs, and requested decisions in the blocker file. The human-facing response should state only the critical blocker and report path.
+
+Preferred response:
+
+```text
+BLOCKED｜Agent-A-01 v1
+Specified Python runtime is unavailable.
+Report: BLOCKERS/Agent-A-01.yaml
+
+$lord resolve BLOCKERS/Agent-A-01.yaml
+```
+
+## 4. CHANGE REQUEST
+
+Use `assets/templates/change-request.md`.
+
+Put alternatives, affected files, rollback plan, and downstream impact in the change-request file. The human-facing response should state only the essential requested change and report path.
+
+Preferred response:
+
+```text
+CHANGE_REQUEST｜Agent-A-01 v1
+Public interface change is required and has not been implemented.
+Report: CHANGE_REQUESTS/Agent-A-01.yaml
+
+$lord review CHANGE_REQUESTS/Agent-A-01.yaml
+```
+
+## 5. Information Not Repeated in Chat
+
+When already recorded in the report file, do not repeat:
+
+- Task background or objective recap.
+- Complete file inventories.
+- Implementation details.
+- Runtime and environment details.
+- Full commands or logs.
+- Acceptance criteria text.
+- Non-critical assumptions, risks, or downstream notes.
+- The full report body.
+
+Mention a risk in chat only when it is critical to the immediate human decision.
+
+## 6. Platform Cannot Save Files
+
+If the platform cannot create a report file:
+
+1. State that the report could not be saved.
+2. Return a compact inline YAML report.
+3. Avoid a long narrative report.
+4. Keep the YAML to fields needed for review.
+
+Example:
+
+```yaml
+submission_type: REVIEW
+project_id: demo-project
+agent_id: Agent-A-01
+executed_task_version: 1
+changed:
+  - src/parser.py
+result:
+  - Fixed blank-line parsing
+validation:
+  - "pytest tests/test_parser.py -q: 8 passed"
+issues: []
+```
+
+## 7. Lord Invocation
+
+Use a short path-based command:
+
+```text
+$lord review HANDOFFS/Agent-A-01.yaml
+```
+
+For blockers:
+
+```text
+$lord resolve BLOCKERS/Agent-A-01.yaml
+```
+
+For change requests:
+
+```text
+$lord review CHANGE_REQUESTS/Agent-A-01.yaml
+```
+
+If `$lord` is unsupported on the target platform, replace it with one short instruction to use the lord protocol on the named report path.

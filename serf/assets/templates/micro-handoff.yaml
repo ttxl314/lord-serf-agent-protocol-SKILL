@@ -1,0 +1,22 @@
+protocol_version: "0.2"
+profile: micro
+
+project_id:
+agent_id:
+executed_task_version:
+submitted_at:
+submission_type: REVIEW
+task_package_path:
+
+changed: []
+
+result: []
+
+validation:
+  # AC-01:
+  #   result: PASS
+  #   evidence: "command or concise evidence"
+
+issues: []
+
+report_path: "HANDOFFS/[agent_id].yaml"
