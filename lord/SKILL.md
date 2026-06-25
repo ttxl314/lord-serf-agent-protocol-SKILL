@@ -23,7 +23,8 @@ The master agent must:
 
 - Understand project goals, scope, constraints, non-goals, and deliverables.
 - Analyze architecture, modules, data flow, interfaces, shared resources, and risks.
-- Select the smallest sufficient file structure from `references/project-scaling.md`.
+- Select the smallest sufficient project structure from `references/project-scaling.md`.
+- Select the smallest sufficient task profile: `micro`, `standard`, or `full`.
 - Split work into bounded tasks with dependencies, versions, and acceptance criteria.
 - Assign IDs with `Agent-[subproject-letter]-[sequence]`, such as `Agent-A-01`.
 - Select a dispatch mode and a capability-based adapter.
@@ -39,13 +40,53 @@ External agents may submit `REVIEW`, `BLOCKED`, or change requests. Only the mas
 3. Select scale and files from `references/project-scaling.md`.
 4. Create or update the authoritative project plan or task registry before dispatch.
 5. Assign IDs as `Agent-A-01`, `Agent-A-02`, `Agent-B-01`; each subproject letter starts at `01`.
-6. Pick a dispatch mode from `references/dispatch-modes.md`: direct, semi-automatic, or manual copy.
-7. Pick one capability adapter from `references/adapters/`. Do not create brand-specific adapters unless capability rules differ.
-8. Generate task packages from `assets/templates/agent-task.md`; use schemas in `assets/schemas/` when machine-readable YAML/JSON is requested.
-9. Generate launch instructions that start with `$serf` when the target platform supports skill-style invocation, then point to the formal task package instead of restating a second source of truth.
-10. Process handoffs, blockers, and change requests with the templates in `assets/templates/`.
-11. Adapt output language using `references/output-language-and-cjk-code.md`.
-12. Review actual outputs using `references/review-and-acceptance.md`; update the authoritative state source only after review.
+6. Select a task profile:
+   - `micro` for small, low-risk, isolated work.
+   - `standard` for ordinary module-level work.
+   - `full` for architecture, shared interfaces, complex dependencies, high risk, or multi-agent coordination.
+7. Pick a dispatch mode from `references/dispatch-modes.md`: direct, semi-automatic, or manual copy.
+8. Pick one capability adapter from `references/adapters/`. Do not create brand-specific adapters unless capability rules differ.
+9. Generate the smallest sufficient task package:
+   - Use `assets/templates/micro-task.yaml` for `micro`.
+   - Use `assets/templates/agent-task.md` for `standard` or `full`, omitting sections that do not apply.
+   - Use schemas in `assets/schemas/` when machine-readable YAML/JSON is requested.
+10. Generate launch instructions that start with `$serf` when the target platform supports skill-style invocation, then point to the formal task package instead of restating a second source of truth.
+11. Process handoffs, blockers, and change requests with the templates in `assets/templates/`.
+12. Adapt output language using `references/output-language-and-cjk-code.md`.
+13. Review actual outputs using `references/review-and-acceptance.md`; update the authoritative state source only after review.
+
+## Context Economy
+
+- Use the smallest task profile that can be executed safely.
+- Do not generate empty sections.
+- Do not repeat project-level context already available through referenced files.
+- Prefer file references over pasted content.
+- Keep launch instructions short and point to the formal task package.
+- Use concise delta instructions for rework instead of restating the whole task.
+- Give acceptance criteria stable IDs when evidence must be mapped back to them.
+- A low-risk task package should not be substantially longer than the work description and acceptance evidence combined.
+- Escalate from `micro` to `standard` or `full` only when risk, dependencies, interfaces, or coordination require it.
+
+## Task Profile Selection
+
+Use `micro` when all are true:
+
+- The task has one clear objective.
+- It changes no more than 2 files, unless the files are trivial and tightly related.
+- It does not change public interfaces, architecture, shared data structures, or shared paths.
+- It has no complex upstream or downstream dependency.
+- It has no overlapping controlled-file ownership with another active task.
+- It has no more than 3 acceptance criteria.
+
+Use `standard` when the task involves ordinary module-level work, several related files, simple dependencies, or routine build/test validation.
+
+Use `full` when any of these apply:
+
+- Public interface or architecture changes.
+- Shared database, schema, configuration, or data-structure changes.
+- Multiple subprojects or external agents must coordinate.
+- High-risk, difficult-to-reverse, or security-sensitive work.
+- Complex change approval, rollback, or recovery requirements.
 
 ## Non-Negotiables
 
@@ -55,14 +96,14 @@ External agents may submit `REVIEW`, `BLOCKED`, or change requests. Only the mas
 - Require `project_id`, `agent_id`, `task_version`, and `updated_at` in task packages.
 - For Python tasks, specify the conda environment path, exact Python executable, or activation command so external agents can run the same runtime.
 - Require handoffs to include `executed_task_version`; do not accept stale-version results directly.
-- Make required files, inputs, outputs, boundaries, dependencies, validation, and acceptance criteria explicit for every task.
-- Use the smallest project structure that supports the work.
+- Make required files, inputs, outputs, boundaries, dependencies, validation, and acceptance criteria explicit, but only to the level needed for the selected task profile.
+- Use the smallest project structure and task profile that support the work.
 - Default output language to the current conversation/window language unless the user specifies another output language.
 - For code tasks involving Chinese text, names, paths, comments, or data, check encoding and CJK-related hazards before dispatch and review.
 
 ## Load As Needed
 
-- Project scale and minimum structures: `references/project-scaling.md`
+- Project scale and task profiles: `references/project-scaling.md`
 - Cross-platform paired use with `serf`: `references/cross-platform-pairing.md`
 - Status, dependencies, and parallelism: `references/status-and-dependencies.md`
 - Dispatch modes: `references/dispatch-modes.md`
@@ -79,6 +120,7 @@ External agents may submit `REVIEW`, `BLOCKED`, or change requests. Only the mas
 - Templates:
   - `assets/templates/project-overview.md`
   - `assets/templates/project-plan.md`
+  - `assets/templates/micro-task.yaml`
   - `assets/templates/agent-task.md`
   - `assets/templates/dispatch-instruction.md`
   - `assets/templates/handoff.md`
@@ -91,15 +133,18 @@ External agents may submit `REVIEW`, `BLOCKED`, or change requests. Only the mas
 
 ## Minimum Orchestration Output
 
-Include at least:
+For simple dispatch, include only:
+
+- Project and task IDs.
+- Task profile and task package path.
+- Current status and dependencies.
+- Target agent type and dispatch mode.
+- Short launch instruction.
+
+For project initialization, recovery, architecture changes, or multi-agent coordination, also include:
 
 - Project goal, scope, and current phase.
-- Project scale and selected file structure.
-- Architecture, module, and interface summary.
-- Subproject letter mapping.
-- Task IDs, versions, statuses, dependencies, and priorities.
-- Parallel and sequential execution relationships.
-- Target agent type and dispatch mode for each task.
-- External agent launch instructions.
-- Files to create or update.
-- Current risks, blockers, and next steps.
+- Selected project structure.
+- Architecture and interface summary.
+- Subproject mapping and execution relationships.
+- Risks, blockers, and next steps.

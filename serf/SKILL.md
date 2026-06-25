@@ -19,12 +19,14 @@ The execution agent must:
 
 - Read the formal task package before doing work.
 - Verify `project_id`, `agent_id`, `task_version`, and `task_package_path` when present.
-- Understand background, required files, upstream handoffs, scope, allowed files, forbidden files, and acceptance criteria.
+- Understand required files, upstream handoffs, scope, allowed files, forbidden files, and acceptance criteria.
 - Work only inside the assigned boundary.
 - Avoid changing public interfaces, shared paths, architecture, or other agents' scope without a change request.
 - Self-validate actual outputs before handoff.
 - Submit `REVIEW`, `BLOCKED`, or a change request. Never claim `DONE`, `REJECTED`, or `CANCELLED`.
-- End every final response with a separate copyable `$lord` invocation command so the master agent can review the result.
+- Save detailed evidence in the report file.
+- Keep the human-facing response to key points only.
+- End every final response with a separate copyable `$lord` invocation command.
 
 ## Workflow
 
@@ -32,11 +34,13 @@ The execution agent must:
 2. Confirm readiness: required files, dependencies, permissions, and task version.
 3. Read only the necessary task context and upstream handoffs.
 4. Plan a minimal execution path inside the declared boundary.
-5. Execute the task. Keep notes on files read, files changed, assumptions, commands, and results.
+5. Execute the task and retain evidence for the report.
 6. Validate against the task's acceptance criteria. Use `references/self-validation.md`.
 7. If blocked, produce a blocker report from `assets/templates/blocker-report.md`.
 8. If a boundary or interface change is needed, produce a change request from `assets/templates/change-request.md`.
-9. If work is ready for master review, produce a handoff from `assets/templates/review-handoff.md` with `submission_status: REVIEW`.
+9. If work is ready for review, choose the smallest sufficient handoff:
+   - `assets/templates/micro-handoff.yaml` for small, low-risk tasks.
+   - `assets/templates/review-handoff.md` for tasks requiring fuller evidence.
 10. Run the final response gate in `references/reporting.md`.
 11. Adapt output language using `references/output-language.md`.
 
@@ -47,8 +51,11 @@ The execution agent must:
 - Do not update the authoritative project plan or task registry unless the task explicitly assigns that edit.
 - Do not mark a task `DONE`; only lord can accept work.
 - Do not modify forbidden controlled files.
-- Do not hide unvalidated work, skipped checks, assumptions, or risks.
-- Do not finish without a very brief human-readable summary and a separate copyable `$lord` invocation command.
+- Do not hide unvalidated work, skipped checks, assumptions, or risks from the report file.
+- Treat the final human-facing response as a notification, not as the handoff itself.
+- Do not paste the full handoff, blocker report, change request, validation log, file inventory, runtime details, or task background into the human-facing response when they are already saved.
+- Keep the human-facing response to no more than 3 short content lines or 3 bullets, excluding the `$lord` command.
+- Mention only a critical unresolved risk in the human-facing response; place all other details in the report file.
 - If task instructions conflict, stop and submit a blocker or clarification request.
 - If a required file is missing or unreadable, stop or proceed only with an explicitly documented safe assumption.
 
@@ -58,38 +65,36 @@ The execution agent must:
 - Cross-platform paired use with `lord`: `references/cross-platform-pairing.md`
 - Execution boundaries and change control: `references/boundaries-and-change-control.md`
 - Self-validation and evidence: `references/self-validation.md`
-- Handoff, blocker, and change outputs: `references/reporting.md`
+- Compact human responses and report rules: `references/reporting.md`
 - Output language: `references/output-language.md`
 - Templates:
+  - `assets/templates/micro-handoff.yaml`
   - `assets/templates/review-handoff.md`
   - `assets/templates/blocker-report.md`
   - `assets/templates/change-request.md`
 - Schemas:
   - `assets/schemas/review-handoff.schema.yaml`
 
-## Minimum Response
+## Minimum Human-Facing Response
 
-When responding after execution, include:
+After execution, return only:
 
-- Task ID and executed task version.
-- Files actually read.
-- Files added or modified.
-- Validation performed and actual results.
-- Assumptions, risks, and incomplete items.
-- Whether the submission is `REVIEW`, `BLOCKED`, or a change request.
-- The full handoff, blocker report, or change request content for lord.
-- A separate copyable `$lord` invocation command that asks lord to review the returned report.
+- Submission type, task ID, and executed task version.
+- One short result, blocker, or change statement.
+- One short validation statement when applicable.
+- The saved report path.
+- A separate copyable `$lord` invocation command.
 
-Before sending the final response, check that the response contains both:
+Do not paste the full report when it has been saved successfully.
 
-```text
-# Human Summary
-```
-
-and a separate fenced command beginning with:
+Preferred shape:
 
 ```text
-$lord
+REVIEW｜Agent-A-01 v1
+Fixed CSV blank-line parsing; 8 tests passed.
+Report: HANDOFFS/Agent-A-01.yaml
+
+$lord review HANDOFFS/Agent-A-01.yaml
 ```
 
-Keep `# Human Summary` to 1-3 short lines or at most 3 bullets.
+When the platform cannot save a report file, return a compact inline YAML report instead of a long narrative report.
