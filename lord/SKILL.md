@@ -49,7 +49,7 @@ External agents may submit `REVIEW`, `BLOCKED`, or change requests. Only the mas
 9. Generate the smallest sufficient task package:
    - Use `assets/templates/micro-task.yaml` for `micro`.
    - Use `assets/templates/agent-task.md` for `standard` or `full`, omitting sections that do not apply.
-   - Use schemas in `assets/schemas/` when machine-readable YAML/JSON is requested.
+   - Validate `micro` packages with `assets/schemas/micro-task.schema.yaml`; use the full schemas for `standard` or `full` machine-readable packages.
 10. Generate launch instructions that start with `$serf` when the target platform supports skill-style invocation, then point to the formal task package instead of restating a second source of truth.
 11. Process handoffs, blockers, and change requests with the templates in `assets/templates/`.
 12. Adapt output language using `references/output-language-and-cjk-code.md`.
@@ -128,6 +128,7 @@ Use `full` when any of these apply:
   - `assets/templates/change-request.md`
   - `assets/templates/recovery-summary.md`
 - Schemas:
+  - `assets/schemas/micro-task.schema.yaml`
   - `assets/schemas/task-package.schema.yaml`
   - `assets/schemas/handoff.schema.yaml`
 

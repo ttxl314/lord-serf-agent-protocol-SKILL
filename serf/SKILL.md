@@ -39,7 +39,7 @@ The execution agent must:
 7. If blocked, produce a blocker report from `assets/templates/blocker-report.md`.
 8. If a boundary or interface change is needed, produce a change request from `assets/templates/change-request.md`.
 9. If work is ready for review, choose the smallest sufficient handoff:
-   - `assets/templates/micro-handoff.yaml` for small, low-risk tasks.
+   - `assets/templates/micro-handoff.yaml` for small, low-risk tasks; validate it with `assets/schemas/micro-handoff.schema.yaml`.
    - `assets/templates/review-handoff.md` for tasks requiring fuller evidence.
 10. Run the final response gate in `references/reporting.md`.
 11. Adapt output language using `references/output-language.md`.
@@ -73,6 +73,7 @@ The execution agent must:
   - `assets/templates/blocker-report.md`
   - `assets/templates/change-request.md`
 - Schemas:
+  - `assets/schemas/micro-handoff.schema.yaml`
   - `assets/schemas/review-handoff.schema.yaml`
 
 ## Minimum Human-Facing Response
