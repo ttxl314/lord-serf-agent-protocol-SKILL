@@ -42,7 +42,7 @@ External agents may submit `REVIEW`, `BLOCKED`, or change requests. Only the mas
 6. Pick a dispatch mode from `references/dispatch-modes.md`: direct, semi-automatic, or manual copy.
 7. Pick one capability adapter from `references/adapters/`. Do not create brand-specific adapters unless capability rules differ.
 8. Generate task packages from `assets/templates/agent-task.md`; use schemas in `assets/schemas/` when machine-readable YAML/JSON is requested.
-9. Generate launch instructions that point to the formal task package instead of restating a second source of truth.
+9. Generate launch instructions that start with `$serf` when the target platform supports skill-style invocation, then point to the formal task package instead of restating a second source of truth.
 10. Process handoffs, blockers, and change requests with the templates in `assets/templates/`.
 11. Adapt output language using `references/output-language-and-cjk-code.md`.
 12. Review actual outputs using `references/review-and-acceptance.md`; update the authoritative state source only after review.

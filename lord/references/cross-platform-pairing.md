@@ -38,6 +38,8 @@ If the target platform does not support Codex skills:
 
 Every lord-to-serf dispatch should include:
 
+- Invocation header `$serf` when the target platform supports skill-style invocation.
+- If `$serf` is unsupported, the content of `serf/SKILL.md` or an equivalent execution-worker instruction.
 - Formal task package, preferably from `lord/assets/templates/agent-task.md`.
 - Launch instruction, preferably from `lord/assets/templates/dispatch-instruction.md`.
 - Required files and upstream handoffs.
@@ -62,3 +64,5 @@ In platforms where `$lord` and `$serf` are not supported, refer to them as:
 - Serf protocol: external execution-worker instructions.
 
 The names are convenience handles, not platform dependencies.
+
+When generating a manual-copy dispatch, lord should still include `$serf` as the first line for platforms that can use it, followed by a fallback note for platforms that cannot.

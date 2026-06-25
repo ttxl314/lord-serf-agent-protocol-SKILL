@@ -7,6 +7,8 @@ dispatch_mode:
 generated_at:
 task_package_path:
 handoff_path:
+worker_skill: serf
+worker_invocation: "$serf"
 execution_environment:
   requires_python: false
   conda_env_path:
@@ -15,6 +17,16 @@ execution_environment:
 ---
 
 # Agent Launch Instruction
+
+## Invocation Header
+
+If the target platform supports Codex-style skill invocation or an equivalent custom-agent shortcut, start the dispatch message with:
+
+```text
+$serf
+```
+
+If the target platform does not support `$serf`, attach or paste `serf/SKILL.md` as the execution-worker instruction before this launch instruction.
 
 You are the external execution agent. Execute only the formal task package referenced by `task_package_path`. Do not treat this launch instruction as a second task definition.
 
