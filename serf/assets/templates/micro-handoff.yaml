@@ -12,10 +12,7 @@ changed: []
 
 result: []
 
-validation:
-  # AC-01:
-  #   result: PASS
-  #   evidence: "command or concise evidence"
+validation: {}
 
 issues: []
 

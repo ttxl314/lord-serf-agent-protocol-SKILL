@@ -15,8 +15,7 @@ allowed_changes: []
 
 expected_outputs: []
 
-acceptance:
-  # AC-01: concise, testable criterion
+acceptance: {}
 
 validation: []
 
