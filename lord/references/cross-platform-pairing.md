@@ -48,6 +48,7 @@ Every lord-to-serf dispatch should include:
 
 Every serf-to-lord return should include:
 
+- a brief human-readable summary of 1-3 short lines or at most 3 bullets
 - `executed_task_version`
 - files actually read
 - files added or modified
@@ -55,6 +56,7 @@ Every serf-to-lord return should include:
 - runtime used for Python work
 - assumptions, risks, and incomplete items
 - `submission_status: REVIEW`, `status: BLOCKED`, or a change request
+- a separate copyable `$lord` invocation command for review
 
 ## 5. Non-Codex Naming
 

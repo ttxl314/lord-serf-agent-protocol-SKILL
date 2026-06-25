@@ -9,7 +9,7 @@ task_package_path:
 
 # Human Summary
 
-Briefly state the requested change, why it is needed, and whether it blocks execution.
+1-3 short lines or at most 3 bullets: the requested change, why it is needed, and whether it blocks execution.
 
 # Change Request
 

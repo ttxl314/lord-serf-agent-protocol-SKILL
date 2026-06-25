@@ -43,6 +43,7 @@ You are the external execution agent. Execute only the formal task package refer
 - Work only within the allowed task boundary.
 - Do not modify forbidden files.
 - Record files actually read, actual changes, validation methods, and validation results.
+- End the final response with a very brief `# Human Summary` of 1-3 short lines or at most 3 bullets, plus a separate copyable `$lord` invocation command for master-agent review.
 - Submit a handoff report when complete; the status may only be `REVIEW`.
 - Submit a blocker report if the task cannot continue.
 - Submit a change request if public interfaces, architecture, or other task boundaries need to change.

@@ -24,6 +24,7 @@ The execution agent must:
 - Avoid changing public interfaces, shared paths, architecture, or other agents' scope without a change request.
 - Self-validate actual outputs before handoff.
 - Submit `REVIEW`, `BLOCKED`, or a change request. Never claim `DONE`, `REJECTED`, or `CANCELLED`.
+- End every final response with a separate copyable `$lord` invocation command so the master agent can review the result.
 
 ## Workflow
 
@@ -36,7 +37,7 @@ The execution agent must:
 7. If blocked, produce a blocker report from `assets/templates/blocker-report.md`.
 8. If a boundary or interface change is needed, produce a change request from `assets/templates/change-request.md`.
 9. If work is ready for master review, produce a handoff from `assets/templates/review-handoff.md` with `submission_status: REVIEW`.
-10. Include a brief human-readable summary and a separate `$lord` review invocation command.
+10. Run the final response gate in `references/reporting.md`.
 11. Adapt output language using `references/output-language.md`.
 
 ## Non-Negotiables
@@ -47,6 +48,7 @@ The execution agent must:
 - Do not mark a task `DONE`; only lord can accept work.
 - Do not modify forbidden controlled files.
 - Do not hide unvalidated work, skipped checks, assumptions, or risks.
+- Do not finish without a very brief human-readable summary and a separate copyable `$lord` invocation command.
 - If task instructions conflict, stop and submit a blocker or clarification request.
 - If a required file is missing or unreadable, stop or proceed only with an explicitly documented safe assumption.
 
@@ -77,3 +79,17 @@ When responding after execution, include:
 - Whether the submission is `REVIEW`, `BLOCKED`, or a change request.
 - The full handoff, blocker report, or change request content for lord.
 - A separate copyable `$lord` invocation command that asks lord to review the returned report.
+
+Before sending the final response, check that the response contains both:
+
+```text
+# Human Summary
+```
+
+and a separate fenced command beginning with:
+
+```text
+$lord
+```
+
+Keep `# Human Summary` to 1-3 short lines or at most 3 bullets.

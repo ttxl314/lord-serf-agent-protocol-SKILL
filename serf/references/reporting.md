@@ -1,10 +1,23 @@
 # Reporting
 
+## 0. Final Response Gate
+
+Before sending any final response for a completed task, blocker, or change request, verify that the response contains all of these sections:
+
+1. `# Human Summary`
+2. The full handoff, blocker report, or change request content
+3. A separate lord invocation section
+4. A fenced command block whose first line is `$lord`, unless the target platform does not support `$lord`
+
+If any item is missing, do not send the final response yet. Add the missing section first.
+
+Keep `# Human Summary` concise: 1-3 short lines or at most 3 bullets. Do not duplicate the full report there.
+
 ## 1. REVIEW Handoff
 
 Use `assets/templates/review-handoff.md` when the assigned task is ready for lord's review. The status must be `REVIEW`, not `DONE`.
 
-Start the final response with a brief human-readable summary. Keep it short and practical: what was done, what was validated, and what lord should review.
+Start the final response with a very brief human-readable summary. Keep it to 1-3 short lines or at most 3 bullets: what was done, what was validated, and what lord should review.
 
 The handoff must include enough evidence for lord to inspect or reproduce the result:
 

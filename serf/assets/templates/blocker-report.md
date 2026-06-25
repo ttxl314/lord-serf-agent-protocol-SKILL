@@ -9,7 +9,7 @@ task_package_path:
 
 # Human Summary
 
-Briefly state what is blocked and what lord must provide or decide.
+1-3 short lines or at most 3 bullets: what is blocked and what lord must provide or decide.
 
 # Blocker Report
 

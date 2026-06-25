@@ -9,7 +9,7 @@ task_package_path:
 
 # Human Summary
 
-Briefly state what was completed, what was validated, and what lord should inspect.
+1-3 short lines or at most 3 bullets: what was completed, what was validated, and what lord should inspect.
 
 # Task Handoff Report
 
