@@ -18,9 +18,9 @@ Use when:
 Recommended structure:
 
 ```text
-PROJECT.md
+PROJECT_OVERVIEW.md
 TASKS.md
-HANDOFFS/
+REVIEWS/
 ```
 
 `TASKS.md` is the single authoritative source for task status.
@@ -32,7 +32,7 @@ Use when:
 - There are 6 to 20 tasks.
 - Multiple related modules are involved.
 - Explicit dependencies exist.
-- Multiple external agents need to collaborate.
+- Multiple Serf executors need to coordinate.
 
 Recommended structure:
 
@@ -42,7 +42,7 @@ PROJECT_PLAN.md
 ARCHITECTURE.md
 TASKS/
 DISPATCH/
-HANDOFFS/
+REVIEWS/
 ISSUES.md
 ```
 
@@ -70,7 +70,7 @@ ISSUES.md
 CHANGELOG.md
 TASKS/
 DISPATCH/
-HANDOFFS/
+REVIEWS/
 BLOCKERS/
 CHANGE_REQUESTS/
 OUTPUTS/
@@ -98,13 +98,13 @@ Use `assets/templates/micro-task.yaml`.
 Target size:
 
 - Task package: about 100-250 English words or 200-500 Chinese characters.
-- Handoff: about 80-180 English words or 150-350 Chinese characters.
+- Submission report: about 80-180 English words or 150-350 Chinese characters.
 
 ### Standard
 
 Use for ordinary module-level work that involves several related files, simple dependencies, routine design judgment, or build/test validation.
 
-Use `assets/templates/agent-task.md`, but omit sections that do not apply.
+Use `assets/templates/task-package.md`, but omit sections that do not apply.
 
 ### Full
 
@@ -116,14 +116,14 @@ Use when any are true:
 - High-risk, security-sensitive, or difficult-to-reverse work.
 - Detailed rollback, approval, or recovery evidence is required.
 
-Use Lord's full task template and the active Serf skill's standard/full review template.
+Use `assets/templates/task-package.md` with `profile: full` and the active Serf skill's `assets/templates/review-report.md`.
 
 ## 6. Context Economy Rules
 
 - Do not repeat project defaults such as runtime, language, encoding, or package policy when they are already defined in an authoritative project file.
 - Inherit stable defaults by file reference. The `inherits` list contains repo-root paths to authoritative files; explicit task fields override inherited defaults.
 - Keep launch instructions to a task-file reference and essential execution note.
-- Use acceptance criterion IDs instead of copying criterion text into handoffs.
+- Use acceptance criterion IDs instead of copying criterion text into submission reports.
 - Use delta instructions for rework.
 - Detailed reports may grow with task complexity; human-facing notifications should not.
 - If a low-risk task package is longer than the work description and acceptance evidence combined, simplify it before dispatch.

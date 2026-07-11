@@ -12,7 +12,7 @@ Make local implementation decisions when they:
 - Do not alter shared architecture or data structures.
 - Do not affect other agents' tasks.
 - Are reversible or easy for lord to review.
-- Are documented in the handoff.
+- Are documented in the submission report.
 
 ## 3. Change Request Required
 

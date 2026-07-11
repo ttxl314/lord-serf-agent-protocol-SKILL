@@ -1,27 +1,30 @@
-protocol_version: "0.3"
+protocol_version: "0.4"
 profile: micro
 
 project_id:
-agent_id:
+task_id:
 task_version:
 updated_at:
-status: READY
+task_status: READY
 
 objective:
-
 inputs: []
-
-allowed_changes: []
-
+allowed_paths: []
+forbidden_paths: []
 expected_outputs: []
-
-acceptance: {}
-
-validation: []
-
+acceptance_criteria: {}
+validation_methods: []
 depends_on: []
 
 # Authoritative files whose stable defaults apply; explicit task fields override them.
 inherits: []
 
-return_path: "HANDOFFS/[agent_id].yaml"
+execution_environment:
+  requires_python: false
+  conda_env_path:
+  conda_env_name:
+  python_executable:
+  activation_command:
+  package_install_policy:
+
+submission_path: "REVIEWS/[task_id]-REVIEW.yaml"

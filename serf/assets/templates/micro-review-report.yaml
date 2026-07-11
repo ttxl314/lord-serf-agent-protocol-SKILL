@@ -1,21 +1,17 @@
-protocol_version: "0.3"
+protocol_version: "0.4"
 profile: micro
 
 project_id:
-agent_id:
+task_id:
 executed_task_version:
 submitted_at:
 submission_type: REVIEW
 task_package_path:
 
-changed: []
-
-result: []
-
-validation: {}
-
+changed_outputs: []
+results: []
+validation_results: {}
 assumptions: []
-
 issues: []
 
-report_path: "HANDOFFS/[agent_id].yaml"
+report_path: "REVIEWS/[task_id]-REVIEW.yaml"

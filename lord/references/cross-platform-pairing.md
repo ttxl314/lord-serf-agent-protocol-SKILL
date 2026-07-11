@@ -1,46 +1,49 @@
 # Cross-Platform Pairing
 
-## 1. Paired Skills
+## 1. Roles
 
-`lord` and `serf` are one paired protocol:
+- Lord owns planning, task packages, dispatch, authoritative task state, review decisions, and final acceptance.
+- Serf owns bounded execution, self-validation, and one submission report per task execution.
 
-- `lord`: planning, task packages, dispatch, authoritative state, and final acceptance.
-- `serf`: bounded execution, self-validation, and return submissions.
+Serf submits only `REVIEW`, `BLOCKED`, or `CHANGE_REQUEST`. Lord alone sets authoritative outcomes.
 
-Serf submits only `REVIEW`, `BLOCKED`, or `CHANGE_REQUEST`. Lord alone may set authoritative outcomes such as `REWORK`, `DONE`, `REJECTED`, or `CANCELLED`.
+## 2. Asset Ownership
 
-## 2. Authority Map
+- Lord owns task-package and dispatch assets.
+- Serf owns submission templates and schemas.
+- Do not duplicate the Serf submission contract inside the Lord skill.
 
-- Task requirements and task schemas are owned by Lord.
-- Return templates and return schemas are owned by Serf.
-- Lord-side `handoff.md`, `blocker.md`, and `change-request.md` are compatibility pointers only.
-- The project plan or task registry is the only authoritative task-status source.
+Paths beginning with `assets/` are relative to the active skill root. In a sibling offline installation, the Serf root is commonly `../serf/` relative to Lord.
 
-Do not maintain a second copy of a Serf return contract inside Lord.
+## 3. Protocol 0.4 Envelope
 
-## 3. Path Base
+Use string task versions and these common submission fields:
 
-Paths shown as `assets/...` in return instructions are relative to the active Serf skill root. In a sibling offline installation such as `.codex/skills/lord` and `.codex/skills/serf`, the Serf root is commonly `../serf/` relative to Lord. In platforms with skill discovery, prefer the logical form `active Serf skill → assets/...` instead of hard-coding a filesystem path.
+- `protocol_version`
+- `profile`
+- `project_id`
+- `task_id`
+- `executed_task_version`
+- `submitted_at`
+- `submission_type`
+- `task_package_path`
+- `report_path`
 
-## 4. Protocol Envelope
+Do not mix v0.3 fields such as `agent_id`, `status`, `return_path`, `handoff_path`, `changed`, `result`, or `validation` into v0.4 artifacts.
 
-Protocol `0.3` uses string task versions and the common return fields `protocol_version`, `project_id`, `agent_id`, `executed_task_version`, `submitted_at`, `submission_type`, `task_package_path`, and `report_path`.
+## 4. Representation
 
-Do not silently combine protocol `0.2` fields such as `submission_status`, `status: BLOCKED`, or `change_status` with protocol `0.3` returns. Finish an active `0.2` task before upgrading, or regenerate it as `0.3`.
+- Markdown templates are the shared-workspace and human-review format.
+- YAML or JSON schemas validate machine-readable equivalents.
+- `submission-envelope.schema.yaml` validates parsed Markdown front matter.
+- Schema validation does not validate Markdown body structure.
 
-## 5. Representation Modes
+## 5. Dispatch Handshake
 
-- Markdown templates are human/shared-workspace formats.
-- Machine schemas validate YAML/JSON equivalents.
-- `submission-envelope.schema.yaml` may validate parsed Markdown front matter.
-- A full machine schema does not validate a Markdown body or front matter alone.
+Dispatch only the Serf invocation, task-package path, unavailable required inputs, and essential runtime note. Do not repeat goals, boundaries, acceptance text, or stable context already stored in the task package.
 
-## 6. Dispatch Handshake
+Every Serf submission contains one report path, concise evidence, and one matching path-based `$lord` command in chat. The command is transport metadata, not a machine-report field.
 
-Dispatch only the Serf invocation, formal task package path, required unavailable inputs, and essential runtime note. Do not repeat task goals, boundaries, acceptance text, or stable context already available by reference.
+## 6. Non-Codex Platforms
 
-A Serf return contains one canonical report path, concise evidence, and one short path-based `$lord` command. Chat is notification only.
-
-## 7. Non-Codex Naming
-
-Where `$lord` and `$serf` are unsupported, call them the Lord orchestration protocol and Serf execution protocol. The names are handles; file contracts remain authoritative.
+Treat `lord` and `serf` as role names when skill invocation is unavailable. Preserve protocol field names, status values, submission types, adapter names, and paths exactly.
