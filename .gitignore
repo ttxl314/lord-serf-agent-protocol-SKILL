@@ -1,6 +1,7 @@
 .DS_Store
 Thumbs.db
 desktop.ini
+.agents/
 
 __pycache__/
 *.py[cod]
@@ -18,5 +19,3 @@ env/
 *.log
 *.tmp
 *.bak
-
-cross-platform-multi-agent-orchestrator-v1.zip

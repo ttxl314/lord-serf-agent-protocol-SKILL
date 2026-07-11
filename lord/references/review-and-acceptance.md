@@ -2,7 +2,7 @@
 
 ## 1. Review Inputs
 
-Read the current task version, the Serf report, actual changed outputs, acceptance evidence, and only the interfaces or upstream artifacts relevant to the change. Do not reload unrelated project context.
+Read the current task package, Serf submission report, actual changed outputs, validation results, and only the interfaces or upstream artifacts relevant to the change. Do not reload unrelated project context.
 
 ## 2. Required Checks
 
@@ -27,9 +27,9 @@ One command or artifact may satisfy multiple acceptance IDs. Reuse the evidence 
 
 ## 4. Outcomes
 
-### PASS
+### DONE
 
-All critical checks pass. Lord updates the authoritative status to `DONE`.
+All critical checks pass. Lord updates authoritative `task_status` to `DONE`.
 
 ### REWORK
 
@@ -49,4 +49,4 @@ The output materially diverges from the task, violates architecture or boundarie
 
 ## 5. Trust Boundary
 
-Do not accept a claim merely because a report says it passed. Review actual outputs and evidence at the risk-appropriate depth above. A Serf `REVIEW` means ready for Lord review, not complete.
+Do not accept a claim merely because a submission report says it passed. Review actual outputs and evidence at the risk-appropriate depth above. A Serf `REVIEW` means ready for Lord review, not complete.

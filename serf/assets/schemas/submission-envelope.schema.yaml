@@ -5,13 +5,17 @@ type: object
 allOf:
   - not:
       anyOf:
-        - required: [submission_status]
+        - required: [agent_id]
         - required: [status]
+        - required: [submission_status]
         - required: [change_status]
+        - required: [handoff_path]
+        - required: [return_path]
 required:
   - protocol_version
+  - profile
   - project_id
-  - agent_id
+  - task_id
   - executed_task_version
   - submitted_at
   - submission_type
@@ -19,15 +23,15 @@ required:
   - report_path
 properties:
   protocol_version:
-    const: "0.3"
+    const: "0.4"
   profile:
     enum: [micro, standard, full]
   project_id:
     type: string
     minLength: 1
-  agent_id:
+  task_id:
     type: string
-    pattern: "^Agent-[A-Z]-[0-9]{2,}$"
+    pattern: "^Task-[A-Z]-[0-9]{2,}$"
   executed_task_version:
     type: string
     minLength: 1

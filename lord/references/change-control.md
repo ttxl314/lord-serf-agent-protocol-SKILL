@@ -2,38 +2,36 @@
 
 ## 1. Local Adjustments
 
-An external agent may make local adjustments that do not affect public interfaces, overall architecture, shared data structures, shared paths, or other tasks. Record all such adjustments in the handoff.
+A Serf executor may make local, reversible adjustments that do not affect public interfaces, architecture, shared data, shared paths, acceptance meaning, or another task. Record each adjustment in the submission report.
 
-## 2. Changes Requiring Approval
+## 2. CHANGE_REQUEST Required
 
-Submit the following changes to the master agent:
+Serf must submit `CHANGE_REQUEST` before changing:
 
-- Public functions, APIs, or call patterns.
-- Input/output parameters and data structures.
-- Database structures.
-- Module boundaries.
-- Technical direction or core dependencies.
-- Shared configuration and public file paths.
-- Modules owned by other agents.
-- Replacement of already accepted outputs.
+- Public interfaces or schemas.
+- Architecture or shared data structures.
+- Shared paths or files owned by another task.
+- Task scope, acceptance criteria, or validation strategy.
+- Security, migration, rollback, or irreversible behavior.
 
-## 3. Required Change Request Contents
+The report must state whether work can continue inside the current boundary while Lord decides.
 
-- Reason for change.
-- Current limitation.
-- Proposed approach.
-- Alternatives.
-- Affected files.
-- Affected tasks.
-- Rollback plan.
-- Whether the change blocks current work.
+## 3. Required Contents
 
-## 4. Synchronization Requirements
+Include only:
 
-After approval, the master agent should update:
+- The smallest requested change.
+- Why current execution is unsafe or incomplete without it.
+- Affected files, interfaces, tasks, rollback, and validation.
+- Whether execution is blocked.
+- The needed decision.
 
-- Architecture or interface files.
-- Authoritative task state source.
-- Affected task files.
-- Change records.
-- Downstream agent launch instructions.
+## 4. Lord Decision
+
+Use one decision value:
+
+- `APPROVE_CHANGE`
+- `REJECT_CHANGE`
+- `REQUEST_INFO`
+
+If the request blocks execution, Lord sets `task_status: BLOCKED`; otherwise the task remains `IN_PROGRESS`. After a decision, Lord updates the authoritative state source, task package version, affected interfaces, dependencies, and downstream tasks before execution resumes.

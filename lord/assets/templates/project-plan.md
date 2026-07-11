@@ -7,7 +7,7 @@
 | Letter | Subproject | Scope |
 |---|---|---|
 
-## Task Register
+## Task Registry
 
-| Task ID | Version | Task name | Target agent type | Dispatch mode | Status | Priority | Upstream dependencies | Authoritative task file | Expected outputs |
+| Task ID | Version | Task name | Target adapter | Dispatch mode | Task status | Priority | Upstream dependencies | Task package | Expected outputs |
 |---|---:|---|---|---|---|---|---|---|---|

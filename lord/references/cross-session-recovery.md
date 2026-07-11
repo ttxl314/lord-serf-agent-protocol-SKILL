@@ -6,7 +6,7 @@
 2. Read the authoritative task state source.
 3. Read the latest architecture and interface files.
 4. Find tasks in `IN_PROGRESS`, `REVIEW`, `BLOCKED`, or `REWORK`.
-5. Read the corresponding task files, dispatch files, and handoffs.
+5. Read the corresponding task packages, dispatch instructions, and submission reports.
 6. Check task versions.
 7. Read recent decisions, issues, and changes.
 8. Generate a recovery summary.
@@ -34,5 +34,5 @@ Before recovery is complete, do not:
 - Reuse an existing task ID.
 - Recreate the same task.
 - Refactor existing architecture immediately.
-- Ignore unreviewed handoffs.
+- Ignore unreviewed submission reports.
 - Continue dispatch based on an old task version.

@@ -1,16 +1,16 @@
-# Task Ingestion
+# Task Package Intake
 
 ## 1. Required Inputs
 
 Before execution, identify:
 
 - `project_id`
-- `agent_id`
+- `task_id`
 - `task_version`
 - `task_package_path`, if provided
 - `authoritative_state_source`, if visible
 - Required files and inputs
-- Upstream dependencies and handoffs
+- Upstream dependencies and submission reports
 - Allowed and forbidden controlled files
 - Acceptance criteria and validation methods
 - Execution environment, especially `requires_python`, `conda_env_path`, `python_executable`, and `activation_command`
@@ -20,11 +20,11 @@ Before execution, identify:
 Proceed only when:
 
 - Required files are readable or the task explicitly allows proceeding without them.
-- The task version is the version assigned in the launch instruction or latest visible task package.
-- Upstream handoffs required for this task are readable.
+- The task version matches the dispatch instruction and latest visible task package.
+- Required upstream submission reports are readable.
 - The allowed work boundary is clear enough to avoid touching unrelated files.
 - Validation methods are possible or a limitation can be documented.
-- If Python is required, the task package or launch instruction specifies a conda environment path, exact Python executable, or activation command.
+- If Python is required, the task package specifies a conda environment path, exact Python executable, or activation command.
 
 If a required input fails a readiness check, submit `BLOCKED` instead of improvising.
 
@@ -35,7 +35,7 @@ A safe assumption is allowed only when all are true:
 - The missing information is not marked required.
 - The assumption is local and reversible.
 - It cannot change task scope, public interfaces, output meaning, or acceptance.
-- It is recorded in the handoff `assumptions` field or section.
+- It is recorded in the submission report `assumptions` field or section.
 
 Otherwise submit `BLOCKED`.
 
@@ -45,7 +45,7 @@ Read what the task requires first. Read additional files only when needed to com
 
 ## 4. Instruction Conflicts
 
-If the launch instruction conflicts with the formal task package, follow the formal task package and report the conflict in the handoff. If the conflict changes scope, submit a blocker.
+If the dispatch instruction conflicts with the task package, follow the task package and record the conflict in the submission report. If the conflict changes scope, submit `BLOCKED`.
 
 ## 5. Python Runtime
 

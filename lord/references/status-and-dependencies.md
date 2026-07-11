@@ -1,62 +1,58 @@
 # Task Status and Dependencies
 
-## 1. Status Definitions
+## 1. `task_status` Values
 
-- `PENDING`: Created, but prerequisites are not satisfied.
+- `PENDING`: Prerequisites are not satisfied.
 - `READY`: Dependencies are satisfied and the task can be dispatched.
-- `IN_PROGRESS`: An external agent is executing the task.
-- `BLOCKED`: Required input, dependency, or decision is missing.
-- `REVIEW`: Output has been returned and awaits master-agent review.
-- `REWORK`: Review failed and revision is required.
-- `DONE`: Accepted by the master agent.
-- `REJECTED`: Output or approach was rejected.
-- `CANCELLED`: Cancelled because the project changed.
+- `IN_PROGRESS`: A Serf executor is executing the task.
+- `BLOCKED`: Required input, dependency, permission, runtime, or decision is missing.
+- `REVIEW`: A REVIEW submission report awaits Lord review.
+- `REWORK`: Lord requires a corrected execution.
+- `DONE`: Lord accepted the outputs.
+- `REJECTED`: Lord rejected the output or approach.
+- `CANCELLED`: The project no longer requires the task.
 
 ## 2. Normal Flow
 
-`PENDING → READY → IN_PROGRESS → REVIEW → DONE`
+```text
+PENDING → READY → IN_PROGRESS → REVIEW → DONE
+```
 
 Common exception flows:
 
 - `IN_PROGRESS → BLOCKED`
-- `REVIEW → REWORK`
-- `REWORK → IN_PROGRESS`
+- `REVIEW → REWORK → IN_PROGRESS`
 - `REVIEW → REJECTED`
-- `PENDING/READY → CANCELLED`
+- `PENDING | READY → CANCELLED`
 
-## 3. Authoritative State Source
+## 3. Status and Submission Separation
 
-- Small projects: `TASKS.md`
-- Medium projects: `PROJECT_PLAN.md`
-- Large projects: `TASK_REGISTRY.yaml`
+Serf submits `REVIEW`, `BLOCKED`, or `CHANGE_REQUEST`. These are `submission_type` values, not authoritative task outcomes.
 
-Statuses in task files, handoff files, and chat history are descriptive only. They do not override the authoritative state source.
-
-External agents return `submission_type: REVIEW`, `submission_type: BLOCKED`, or `submission_type: CHANGE_REQUEST`. Submission type is not task status. Lord alone updates the authoritative task status, including `DONE`, `REWORK`, `REJECTED`, or `CANCELLED`.
+Task packages, submission reports, and chat may describe state, but only the authoritative state source controls `task_status`. Lord performs every authoritative update.
 
 ## 4. Dependency Checks
 
-Before a task enters `READY`, confirm that:
+Before setting `READY`, confirm:
 
-- Required files exist.
-- Upstream tasks have reached the required status.
-- Upstream handoffs are readable.
-- Public interfaces are defined.
-- Input data is complete.
-- The task version is current.
+- Required inputs exist.
+- Upstream tasks reached the required state.
+- Required upstream submission reports are readable.
+- Shared interfaces are defined.
+- The task version and runtime are current.
 
-## 5. Parallel Execution Conditions
+## 5. Parallel Execution
 
-Allow parallel execution only when all conditions are true:
+Allow parallel execution only when:
 
-- Tasks do not modify the same controlled core files.
-- Tasks do not depend on each other's unfinished outputs.
+- Tasks do not modify the same controlled files.
+- Tasks do not depend on unfinished outputs from one another.
 - Shared interfaces are frozen or explicit.
 - Work boundaries do not overlap.
-- The master agent has confirmed there is no conflict.
+- Lord has confirmed there is no conflict.
 
-## 6. Blocker Handling
+## 6. Blockers and Change Requests
 
-When a critical dependency is missing, move the task to `BLOCKED` and submit a blocker report.
+A missing required dependency produces `BLOCKED`. Optional information may use a reversible documented assumption only when it cannot change scope, interfaces, output meaning, or acceptance.
 
-For optional local information only, use a reversible documented assumption when it cannot change scope, interfaces, output meaning, or acceptance. Missing required inputs remain `BLOCKED`.
+For `CHANGE_REQUEST`, set `task_status: BLOCKED` only when work cannot continue within the current boundary; otherwise retain `IN_PROGRESS` while Lord decides.

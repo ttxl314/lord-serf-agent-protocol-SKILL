@@ -1,0 +1,48 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: Lord dispatch instruction
+type: object
+required:
+  - protocol_version
+  - profile
+  - project_id
+  - task_id
+  - task_version
+  - target_adapter
+  - dispatch_mode
+  - generated_at
+  - task_package_path
+  - submission_path
+  - worker_skill
+  - worker_invocation
+properties:
+  protocol_version:
+    const: "0.4"
+  profile:
+    enum: [micro, standard, full]
+  project_id:
+    type: string
+    minLength: 1
+  task_id:
+    type: string
+    pattern: "^Task-[A-Z]-[0-9]{2,}$"
+  task_version:
+    type: string
+    minLength: 1
+  target_adapter:
+    enum: [generic-chat, coding, document, api, shared-workspace]
+  dispatch_mode:
+    enum: [direct, semi-automatic, manual-copy]
+  generated_at:
+    type: string
+    format: date-time
+  task_package_path:
+    type: string
+    minLength: 1
+  submission_path:
+    type: string
+    minLength: 1
+  worker_skill:
+    const: serf
+  worker_invocation:
+    const: "$serf"
+additionalProperties: false

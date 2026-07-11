@@ -1,38 +1,37 @@
 # Cross-Platform Pairing
 
-## 1. Paired Skills
+## 1. Roles
 
-`serf` is the execution-side counterpart to `lord`:
+- Lord owns planning, task packages, dispatch, authoritative task state, review decisions, and final acceptance.
+- Serf owns bounded execution, evidence, and submission reports.
 
-- Lord owns task requirements, dispatch, authoritative state, and final acceptance.
-- Serf owns execution, evidence, and return submissions.
+Serf never sets `REWORK`, `DONE`, `REJECTED`, or `CANCELLED`.
 
-Serf submits only `REVIEW`, `BLOCKED`, or `CHANGE_REQUEST`. It never submits `REWORK`, `DONE`, `REJECTED`, or `CANCELLED`.
-
-## 2. Canonical Return Assets
-
-Paths below are relative to the active Serf skill root:
+## 2. Canonical Submission Assets
 
 - Common envelope: `assets/schemas/submission-envelope.schema.yaml`
-- Micro review: `assets/templates/micro-handoff.yaml` and `assets/schemas/micro-handoff.schema.yaml`
-- Standard/full review: `assets/templates/review-handoff.md` and `assets/schemas/review-handoff.schema.yaml`
-- Blocker: `assets/templates/blocker-report.md`
-- Change request: `assets/templates/change-request.md`
+- `micro` REVIEW: `assets/templates/micro-review-report.yaml` and `assets/schemas/micro-review-report.schema.yaml`
+- `standard` or `full` REVIEW: `assets/templates/review-report.md` and `assets/schemas/review-report.schema.yaml`
+- BLOCKED: `assets/templates/blocker-report.md`
+- CHANGE_REQUEST: `assets/templates/change-request-report.md`
 
-Lord-side return files are compatibility pointers, not separate formats.
+All paths above are relative to the active Serf skill root.
 
-## 3. Representation Modes
+## 3. Representation
 
-Markdown templates are human/shared-workspace formats. Their parsed front matter may be validated by the common envelope schema. Full review schemas validate machine-readable YAML/JSON equivalents and do not validate Markdown bodies or front matter alone.
+- Use Markdown for shared-workspace or human review.
+- Use YAML or JSON when the receiving platform validates structured payloads.
+- Validate parsed Markdown front matter with the common envelope schema.
+- Do not claim that a Markdown body was schema-validated.
 
-## 4. Protocol Envelope
+## 4. Protocol 0.4 Envelope
 
-Use `protocol_version: "0.3"`, string task versions such as `"v1"`, and the common return fields `project_id`, `agent_id`, `executed_task_version`, `submitted_at`, `submission_type`, `task_package_path`, and `report_path`.
+Copy `protocol_version: "0.4"`, `profile`, `project_id`, and `task_id` from the task package. Use a string `executed_task_version` such as `"v1"`, then add `submitted_at`, `submission_type`, `task_package_path`, and `report_path`.
 
-Do not silently mix legacy `0.2` fields into a `0.3` return. Finish the old task before upgrading or request regeneration as `0.3`.
+Do not mix v0.3 fields or `HANDOFFS/` paths into a v0.4 submission.
 
-## 5. Required Inputs and Return
+## 5. Required Inputs and Submission
 
-Before work starts, identify the task package, work boundaries, acceptance criteria, dependencies, and required runtime. A missing required input produces `BLOCKED`; only optional information may use the documented safe-assumption rule.
+Before execution, identify the task package, boundary, acceptance criteria, dependencies, runtime, and expected submission path. Missing required information produces `BLOCKED`; only optional information may use a documented safe assumption.
 
-Return the smallest matching report. Do not repeat task background, acceptance text, full logs, or stable environment details. End chat with a short notification and one path-based `$lord` command.
+Save the full submission report first. Keep chat to a short notification plus the matching `$lord review` or `$lord resolve` command.

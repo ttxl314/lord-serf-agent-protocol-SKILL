@@ -1,4 +1,4 @@
 interface:
   display_name: "Lord"
-  short_description: "Orchestrate external agents across tools"
-  default_prompt: "Use $lord to split this complex project into external-agent task packages and recovery-ready handoffs."
+  short_description: "Orchestrate Serf executors across platforms"
+  default_prompt: "Use $lord to split this complex project into versioned task packages, dispatch Serf executors, and review their submission reports."

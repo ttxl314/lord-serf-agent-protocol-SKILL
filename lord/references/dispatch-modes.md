@@ -1,52 +1,39 @@
 # Dispatch Modes
 
-## 1. Direct Dispatch
+## 1. Direct
 
-Use when:
+Use `direct` when the current environment can start the target Serf executor through a verified API, connector, or automation.
 
-- The current environment has an API, connector, or automation capability for the target agent.
-- The task body or file references can be transmitted.
-- Structured return results can be received.
+- Write the task package before invocation.
+- Record the target adapter, task ID, task version, dispatch time, and invocation result.
+- Claim execution started only after invocation succeeds.
+- Never use a platform-temporary ID as the only project or task identifier.
 
-Requirements:
+## 2. Semi-Automatic
 
-- Preserve project ID, task ID, and task version.
-- Record dispatch time and target.
-- Require structured return data.
-- Do not use a platform-internal temporary ID as the only project identifier.
-- Claim that the external agent has started only after the actual invocation succeeds.
+Use `semi-automatic` when the current environment can prepare all artifacts but a user must perform one launch or transfer action.
 
-## 2. Semi-Automatic Dispatch
+Provide only:
 
-Use when:
+- Task-package path.
+- Serf launch instruction.
+- Required unavailable inputs.
+- Essential runtime note.
+- Expected submission path.
 
-- The current environment can create files but cannot directly invoke the target software.
-
-Output:
-
-- Formal task file.
-- Required file list.
-- Target agent launch instruction.
-- Suggested save paths.
-- Return handoff requirements.
-- A clear note that the user or target environment must perform the actual launch.
+Do not claim execution started until the user or platform confirms it.
 
 ## 3. Manual Copy
 
-Use when:
+Use `manual-copy` when another independent session has no shared workspace or direct connector.
 
-- Only text can be copied or a small number of files can be uploaded.
+Transfer only:
 
-Requirements:
+- The task package.
+- Required inputs not otherwise accessible.
+- The matching Serf submission template.
+- A short instruction to save the report at `submission_path`.
 
-- Generate a self-contained launch instruction.
-- Clearly list files the user must upload.
-- Avoid relying on shared directories.
-- Require the external agent to return a complete handoff report.
-- Do not claim the external task was started automatically.
+## 4. Selection Rule
 
-## 4. Mode Selection
-
-Prefer the strongest verifiable mode. If capability is unclear, default to manual copy.
-
-Launch instructions must not redefine task goals, boundaries, or acceptance criteria. Those belong to the formal task file.
+Choose the most direct mode that the current environment can verify. A dispatch instruction never redefines goals, boundaries, acceptance criteria, validation methods, or runtime; those belong to the task package.
