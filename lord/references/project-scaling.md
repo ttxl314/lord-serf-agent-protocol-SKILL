@@ -120,6 +120,9 @@ Use `assets/templates/task-package.md` with `profile: full` and the active Serf 
 
 ## 6. Context Economy Rules
 
+- Give every task a compact project context index: one-sentence project goal and task role, related task IDs, and only the repo-root paths needed to check authoritative state or interfaces.
+- For `micro`, encode the index in `objective`, `depends_on`, and `inherits`; for `standard` or `full`, fill `Project Context Index` under `Background`.
+- Treat the index as orientation for project-fit checks, not permission to widen the task boundary.
 - Do not repeat project defaults such as runtime, language, encoding, or package policy when they are already defined in an authoritative project file.
 - Inherit stable defaults by file reference. The `inherits` list contains repo-root paths to authoritative files; explicit task fields override inherited defaults.
 - Keep launch instructions to a task-file reference and essential execution note.

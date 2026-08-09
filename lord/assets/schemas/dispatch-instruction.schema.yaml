@@ -16,7 +16,7 @@ required:
   - worker_invocation
 properties:
   protocol_version:
-    const: "0.4"
+    const: "0.5"
   profile:
     enum: [micro, standard, full]
   project_id:

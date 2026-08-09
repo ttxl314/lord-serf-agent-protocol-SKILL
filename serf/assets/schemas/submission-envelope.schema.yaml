@@ -6,11 +6,21 @@ allOf:
   - not:
       anyOf:
         - required: [agent_id]
+        - required: [assigned_to]
+        - required: [revision]
         - required: [status]
         - required: [submission_status]
         - required: [change_status]
+        - required: [target_agent_type]
+        - required: [required_files]
+        - required: [allowed_changes]
         - required: [handoff_path]
         - required: [return_path]
+        - required: [acceptance]
+        - required: [lord_invocation]
+        - required: [changed]
+        - required: [result]
+        - required: [validation]
 required:
   - protocol_version
   - profile
@@ -23,7 +33,7 @@ required:
   - report_path
 properties:
   protocol_version:
-    const: "0.4"
+    const: "0.5"
   profile:
     enum: [micro, standard, full]
   project_id:

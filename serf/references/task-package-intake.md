@@ -9,6 +9,7 @@ Before execution, identify:
 - `task_version`
 - `task_package_path`, if provided
 - `authoritative_state_source`, if visible
+- Project goal, this task's role, related task IDs, and indexed alignment files; for `micro`, derive them from `objective`, `depends_on`, and `inherits`
 - Required files and inputs
 - Upstream dependencies and submission reports
 - Allowed and forbidden controlled files
@@ -22,6 +23,7 @@ Proceed only when:
 - Required files are readable or the task explicitly allows proceeding without them.
 - The task version matches the dispatch instruction and latest visible task package.
 - Required upstream submission reports are readable.
+- The planned output supports the indexed project goal and remains compatible with related tasks and interfaces.
 - The allowed work boundary is clear enough to avoid touching unrelated files.
 - Validation methods are possible or a limitation can be documented.
 - If Python is required, the task package specifies a conda environment path, exact Python executable, or activation command.
@@ -41,7 +43,7 @@ Otherwise submit `BLOCKED`.
 
 ## 3. Context Discipline
 
-Read what the task requires first. Read additional files only when needed to complete or validate the assigned work. Do not use unrelated project context to expand the task scope.
+Use the context index for orientation, then read only the indexed or task-required files needed to complete or validate the work. Do not use broader project visibility to expand the task scope.
 
 ## 4. Instruction Conflicts
 

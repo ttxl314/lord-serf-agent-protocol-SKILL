@@ -1,5 +1,5 @@
 ---
-protocol_version: "0.4"
+protocol_version: "0.5"
 profile: # micro | standard | full
 project_id:
 task_id:

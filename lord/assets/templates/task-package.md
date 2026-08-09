@@ -1,5 +1,5 @@
 ---
-protocol_version: "0.4"
+protocol_version: "0.5"
 profile: # standard | full
 project_id:
 task_id:
@@ -9,6 +9,7 @@ task_status: READY
 target_adapter:
 dispatch_mode:
 authoritative_state_source:
+output_language:
 depends_on: []
 submission_path: "REVIEWS/[task_id]-REVIEW.md"
 execution_environment:
@@ -23,6 +24,13 @@ execution_environment:
 # Task Package
 
 ## 1. Background
+
+### Project Context Index
+
+- Project goal:
+- This task's role:
+- Related task IDs:
+- Alignment files (repo-root paths only):
 
 ## 2. Objective
 

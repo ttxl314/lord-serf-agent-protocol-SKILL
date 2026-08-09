@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the Lord/Serf skill pair and protocol v0.4 assets."""
+"""Validate the Lord/Serf skill pair and protocol v0.5 assets."""
 
 from __future__ import annotations
 
@@ -20,6 +20,7 @@ except ImportError as exc:  # pragma: no cover - dependency bootstrap path
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILLS = (ROOT / "lord", ROOT / "serf")
+PROTOCOL_VERSION = "0.5"
 FRONT_MATTER = re.compile(r"\A---\s*\n(.*?)\n---\s*(?:\n|\Z)", re.DOTALL)
 LOCAL_REFERENCE = re.compile(r"`((?:assets|references)/[A-Za-z0-9_.\-/]+)`")
 SKILL_NAME = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
@@ -31,6 +32,42 @@ FORBIDDEN_ROLE_ALIASES = re.compile(
 )
 FORBIDDEN_ARTIFACT_SUFFIXES = {".bak", ".log", ".tmp", ".zip"}
 FORBIDDEN_DIRECTORY_NAMES = {".git.bak", "__pycache__", ".pytest_cache"}
+LEGACY_FIELDS = {
+    "acceptance",
+    "agent_id",
+    "allowed_changes",
+    "assigned_to",
+    "change_status",
+    "changed",
+    "handoff_path",
+    "lord_invocation",
+    "required_files",
+    "result",
+    "return_path",
+    "revision",
+    "status",
+    "submission_status",
+    "target_agent_type",
+    "validation",
+}
+TEMPLATE_SCHEMAS = {
+    "lord/assets/templates/micro-task.yaml": "micro-task.schema.yaml",
+    "lord/assets/templates/task-package.md": "task-package.schema.yaml",
+    "lord/assets/templates/dispatch-instruction.md": "dispatch-instruction.schema.yaml",
+    "serf/assets/templates/micro-review-report.yaml": "micro-review-report.schema.yaml",
+    "serf/assets/templates/review-report.md": "submission-envelope.schema.yaml",
+    "serf/assets/templates/blocker-report.md": "submission-envelope.schema.yaml",
+    "serf/assets/templates/change-request-report.md": "submission-envelope.schema.yaml",
+}
+TASK_PACKAGE_BODY_FIELDS = {
+    "acceptance_criteria",
+    "allowed_paths",
+    "forbidden_paths",
+    "inputs",
+    "objective",
+    "expected_outputs",
+    "validation_methods",
+}
 
 
 def fail(message: str) -> None:
@@ -44,6 +81,8 @@ def repo_path(path: Path) -> str:
 def read_text(path: Path) -> str:
     try:
         return path.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        fail(f"Required file not found: {repo_path(path)}")
     except UnicodeDecodeError as exc:
         fail(f"File is not UTF-8: {repo_path(path)} ({exc})")
 
@@ -99,7 +138,7 @@ def validate_repository_hygiene() -> None:
             fail(f"Missing final newline: {repo_path(path)}")
 
     attributes = read_text(ROOT / ".gitattributes")
-    for pattern in ("*.md", "*.py", "*.yaml", "*.yml"):
+    for pattern in ("*.md", "*.py", "*.txt", "*.yaml", "*.yml"):
         if f"{pattern} text eol=lf" not in attributes:
             fail(f".gitattributes does not enforce LF for {pattern}")
 
@@ -174,7 +213,10 @@ def validate_yaml_and_schemas() -> dict[str, dict[str, Any]]:
 
 def validate_canonical_assets() -> None:
     required = {
+        ROOT / "lord/assets/templates/dispatch-instruction.md",
+        ROOT / "lord/assets/templates/micro-task.yaml",
         ROOT / "lord/assets/templates/task-package.md",
+        ROOT / "serf/assets/templates/blocker-report.md",
         ROOT / "serf/assets/templates/micro-review-report.yaml",
         ROOT / "serf/assets/templates/review-report.md",
         ROOT / "serf/assets/templates/change-request-report.md",
@@ -195,6 +237,28 @@ def validate_canonical_assets() -> None:
             fail(f"Legacy asset still present: {repo_path(path)}")
 
 
+def validate_project_context_index() -> None:
+    required_markers = {
+        ROOT / "lord/assets/templates/task-package.md": (
+            "### Project Context Index",
+            "- Project goal:",
+            "- This task's role:",
+            "- Related task IDs:",
+            "- Alignment files (repo-root paths only):",
+        ),
+        ROOT / "lord/assets/templates/micro-task.yaml": (
+            "connect the project goal to this task's contribution",
+            "# Upstream task IDs that affect this task.",
+            "interfaces needed for alignment",
+        ),
+    }
+    for path, markers in required_markers.items():
+        text = read_text(path)
+        missing = [marker for marker in markers if marker not in text]
+        if missing:
+            fail(f"{repo_path(path)} misses project context index markers: {missing}")
+
+
 def validate_template_profiles() -> None:
     cases = {
         ROOT / "lord/assets/templates/task-package.md": {"standard", "full"},
@@ -207,74 +271,58 @@ def validate_template_profiles() -> None:
         metadata = markdown_front_matter(path)
         if metadata.get("profile") is not None:
             fail(f"Multi-profile template hard-codes profile in {repo_path(path)}")
-        match = re.search(r"^profile:\s*#\s*(.+)$", read_text(path), re.MULTILINE)
-        if match is None or not all(profile in match.group(1) for profile in supported):
+        front = FRONT_MATTER.match(read_text(path))
+        haystack = front.group(0) if front else read_text(path)
+        match = re.search(r"^profile:\s*#\s*(.+?)\s*$", haystack, re.MULTILINE)
+        declared = (
+            {part.strip() for part in match.group(1).split("|") if part.strip()}
+            if match
+            else set()
+        )
+        if declared != supported:
             fail(f"Profile choices are incomplete in {repo_path(path)}")
 
 
-def validate_template_contracts() -> None:
-    forbidden = {
-        "agent_id",
-        "assigned_to",
-        "status",
-        "target_agent_type",
-        "required_files",
-        "allowed_changes",
-        "return_path",
-        "handoff_path",
-        "revision",
-        "submission_status",
-        "lord_invocation",
-    }
-    task_common = {
-        "protocol_version",
-        "profile",
-        "project_id",
-        "task_id",
-        "task_version",
-        "updated_at",
-        "task_status",
-    }
-    submission_common = {
-        "protocol_version",
-        "profile",
-        "project_id",
-        "task_id",
-        "executed_task_version",
-        "submitted_at",
-        "submission_type",
-        "task_package_path",
-        "report_path",
-    }
-    cases = {
-        ROOT / "lord/assets/templates/micro-task.yaml": task_common
-        | {"submission_path"},
-        ROOT / "lord/assets/templates/task-package.md": task_common
-        | {"target_adapter", "submission_path"},
-        ROOT / "lord/assets/templates/dispatch-instruction.md": {
-            "protocol_version",
-            "profile",
-            "project_id",
-            "task_id",
-            "task_version",
-            "target_adapter",
-            "task_package_path",
-            "submission_path",
-        },
-        ROOT / "serf/assets/templates/micro-review-report.yaml": submission_common,
-        ROOT / "serf/assets/templates/review-report.md": submission_common,
-        ROOT / "serf/assets/templates/blocker-report.md": submission_common,
-        ROOT / "serf/assets/templates/change-request-report.md": submission_common,
-    }
-    for path, required in cases.items():
+def validate_template_contracts(schemas: dict[str, dict[str, Any]]) -> None:
+    checker = FormatChecker()
+    for relative_path, schema_name in TEMPLATE_SCHEMAS.items():
+        path = ROOT / relative_path
         data = load_yaml(path) if path.suffix == ".yaml" else markdown_front_matter(path)
+        schema = schemas[schema_name]
+        required = set(schema["required"])
+        if relative_path == "lord/assets/templates/task-package.md":
+            required -= TASK_PACKAGE_BODY_FIELDS
         keys = set(data)
         missing = required - keys
-        stale = forbidden & keys
+        stale = LEGACY_FIELDS & keys
         if missing:
             fail(f"{repo_path(path)} misses canonical fields: {sorted(missing)}")
         if stale:
             fail(f"{repo_path(path)} uses legacy fields: {sorted(stale)}")
+
+        for key, value in data.items():
+            property_schema = schema.get("properties", {}).get(key)
+            if property_schema is None or value is None or value == [] or value == {}:
+                continue
+            field_schema = {
+                "$schema": schema.get("$schema"),
+                "$defs": schema.get("$defs", {}),
+                "type": "object",
+                "required": [key],
+                "properties": {key: property_schema},
+                "additionalProperties": False,
+            }
+            error = next(
+                Draft202012Validator(
+                    field_schema, format_checker=checker
+                ).iter_errors({key: value}),
+                None,
+            )
+            if error:
+                fail(
+                    f"{repo_path(path)} field '{key}' violates {schema_name}: "
+                    f"{error.message}"
+                )
 
 
 def validate_envelope_templates(envelope_schema: dict[str, Any]) -> None:
@@ -307,7 +355,7 @@ def validate_examples(schemas: dict[str, dict[str, Any]]) -> None:
         "package_install_policy": None,
     }
     task_base = {
-        "protocol_version": "0.4",
+        "protocol_version": PROTOCOL_VERSION,
         "project_id": "demo",
         "task_id": "Task-A-01",
         "task_version": "v1",
@@ -342,7 +390,7 @@ def validate_examples(schemas: dict[str, dict[str, Any]]) -> None:
         "submission_path": "REVIEWS/Task-A-01-REVIEW.md",
     }
     dispatch = {
-        "protocol_version": "0.4",
+        "protocol_version": PROTOCOL_VERSION,
         "profile": "standard",
         "project_id": "demo",
         "task_id": "Task-A-01",
@@ -356,7 +404,7 @@ def validate_examples(schemas: dict[str, dict[str, Any]]) -> None:
         "worker_invocation": "$serf",
     }
     envelope = {
-        "protocol_version": "0.4",
+        "protocol_version": PROTOCOL_VERSION,
         "profile": "standard",
         "project_id": "demo",
         "task_id": "Task-A-01",
@@ -393,7 +441,36 @@ def validate_examples(schemas: dict[str, dict[str, Any]]) -> None:
     }
     checker = FormatChecker()
     for schema_name, instance in examples.items():
-        Draft202012Validator(schemas[schema_name], format_checker=checker).validate(instance)
+        validator = Draft202012Validator(schemas[schema_name], format_checker=checker)
+        validator.validate(instance)
+        if not list(validator.iter_errors({**instance, "protocol_version": "0.4"})):
+            fail(f"{schema_name} accepts obsolete protocol version 0.4")
+
+    envelope_validator = Draft202012Validator(
+        schemas["submission-envelope.schema.yaml"], format_checker=checker
+    )
+    envelope_variants = (
+        envelope,
+        {
+            **envelope,
+            "submission_type": "BLOCKED",
+            "report_path": "BLOCKERS/Task-A-01-BLOCKER.md",
+        },
+        {
+            **envelope,
+            "profile": "full",
+            "submission_type": "CHANGE_REQUEST",
+            "report_path": "CHANGE_REQUESTS/Task-A-01-CHANGE-REQUEST.md",
+        },
+    )
+    for instance in envelope_variants:
+        envelope_validator.validate(instance)
+        for field in LEGACY_FIELDS:
+            if not list(envelope_validator.iter_errors({**instance, field: "legacy"})):
+                fail(
+                    "submission-envelope.schema.yaml accepts legacy field "
+                    f"'{field}' for {instance['submission_type']}"
+                )
 
 
 def main() -> int:
@@ -403,17 +480,21 @@ def main() -> int:
         validate_skill(skill_dir)
     schemas = validate_yaml_and_schemas()
     validate_canonical_assets()
+    validate_project_context_index()
     validate_template_profiles()
-    validate_template_contracts()
+    validate_template_contracts(schemas)
     validate_envelope_templates(schemas["submission-envelope.schema.yaml"])
     validate_examples(schemas)
-    print("Validated Lord/Serf protocol v0.4, repository hygiene, and canonical vocabulary.")
+    print(
+        f"Validated Lord/Serf protocol v{PROTOCOL_VERSION}, repository hygiene, "
+        "and canonical vocabulary."
+    )
     return 0
 
 
 if __name__ == "__main__":
     try:
         raise SystemExit(main())
-    except (AssertionError, KeyError, TypeError, ValueError) as exc:
+    except (AssertionError, KeyError, OSError, TypeError, ValueError) as exc:
         print(f"Validation failed: {exc}", file=sys.stderr)
         raise SystemExit(1) from exc

@@ -23,6 +23,7 @@ Lord must:
 - Understand goals, scope, constraints, non-goals, deliverables, architecture, interfaces, and risks.
 - Select the smallest sufficient project structure and task profile.
 - Split work into bounded tasks with explicit dependencies, versions, boundaries, outputs, acceptance criteria, and validation methods.
+- Keep each task large enough to be an independently verifiable project contribution; merge sibling work when correctness would require reconstructing their combined intent.
 - Assign task IDs as `Task-[subproject-letter]-[sequence]`, such as `Task-A-01`.
 - Select one dispatch mode and one capability adapter.
 - Generate task packages, launch instructions, and expected submission paths.
@@ -43,6 +44,7 @@ Serf submits only `REVIEW`, `BLOCKED`, or `CHANGE_REQUEST`. Lord alone sets auth
 9. Generate the smallest sufficient task package:
    - Use `assets/templates/micro-task.yaml` for `micro`.
    - Use `assets/templates/task-package.md` for `standard` or `full`, omitting sections that do not apply.
+   - Include a compact project context index: the project goal, this task's role, related task IDs, and only the repo-root paths needed for alignment.
    - Validate machine-readable packages with the matching schema under `assets/schemas/`.
 10. Generate `assets/templates/dispatch-instruction.md`. Start with `$serf` when supported and point to the task package instead of restating it.
 11. Process Serf submissions with the canonical templates and schemas in the active Serf skill.
@@ -66,6 +68,7 @@ Use `full` for architecture, public interfaces, shared schemas or configuration,
 ## Context Economy
 
 - Reference authoritative files instead of repeating stable context.
+- For `micro`, encode the context index in `objective`, `depends_on`, and `inherits`; do not add parallel fields.
 - Keep launch instructions to the task path and essential runtime note.
 - Use stable acceptance IDs and reuse evidence across criteria.
 - Use delta-only rework instructions.
@@ -76,8 +79,8 @@ Use `full` for architecture, public interfaces, shared schemas or configuration,
 - Never claim a Serf executor was dispatched unless an API, connector, automation, or user action actually started it.
 - Keep one authoritative state source: `TASKS.md`, `PROJECT_PLAN.md`, or `TASK_REGISTRY.yaml`.
 - Treat task packages as requirements and Serf submission reports as evidence; neither replaces authoritative state.
-- Require protocol `0.4`, `project_id`, `task_id`, `task_version`, `updated_at`, and `task_status` in every task package.
-- Do not mix v0.3 field names or paths into v0.4 artifacts.
+- Require protocol `0.5`, `project_id`, `task_id`, `task_version`, `updated_at`, and `task_status` in every task package.
+- Do not mix v0.3 field names or paths into v0.5 artifacts.
 - Never use `agent_id`, `Agent-A-01` IDs, `assigned_to`, `.agents/` paths, `status` as a task-package field, or an adapter name outside the canonical five identifiers.
 - Use `REVIEWS/[task_id]-REVIEW.yaml` for `micro` and `REVIEWS/[task_id]-REVIEW.md` for `standard` or `full` unless the project defines another explicit `submission_path`.
 - Require each submission to copy `profile`, use `executed_task_version`, and match the assigned `task_id`.

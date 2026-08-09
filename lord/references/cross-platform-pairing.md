@@ -15,7 +15,7 @@ Serf submits only `REVIEW`, `BLOCKED`, or `CHANGE_REQUEST`. Lord alone sets auth
 
 Paths beginning with `assets/` are relative to the active skill root. In a sibling offline installation, the Serf root is commonly `../serf/` relative to Lord.
 
-## 3. Protocol 0.4 Envelope
+## 3. Protocol 0.5 Envelope
 
 Use string task versions and these common submission fields:
 
@@ -29,7 +29,7 @@ Use string task versions and these common submission fields:
 - `task_package_path`
 - `report_path`
 
-Do not mix v0.3 fields such as `agent_id`, `status`, `return_path`, `handoff_path`, `changed`, `result`, or `validation` into v0.4 artifacts.
+Do not mix v0.3 fields such as `agent_id`, `status`, `return_path`, `handoff_path`, `changed`, `result`, or `validation` into v0.5 artifacts.
 
 ## 4. Representation
 
