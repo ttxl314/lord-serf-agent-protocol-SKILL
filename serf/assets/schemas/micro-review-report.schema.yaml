@@ -19,7 +19,7 @@ required:
   - report_path
 properties:
   protocol_version:
-    const: "0.4"
+    const: "0.5"
   profile:
     const: micro
   project_id:

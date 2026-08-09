@@ -9,7 +9,7 @@ Choose the response language in this order:
 3. If the conversation is mixed-language, use the language of the latest user instruction for narrative text.
 4. Keep code identifiers, file paths, schema keys, status values, and command names in their required literal form.
 
-If Serf executors run in different locales, state the output language in the task package and dispatch instruction.
+If Serf executors run in different locales, set `output_language` in the task package.
 
 ## 2. Chinese and CJK Code Hazards
 

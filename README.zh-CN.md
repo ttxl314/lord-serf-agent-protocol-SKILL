@@ -7,7 +7,7 @@
 - `lord` 是编排 Skill：负责规划、生成任务包、派发 Serf 执行端、维护权威任务状态并作出审阅决策。
 - `serf` 是执行 Skill：负责执行一个 Lord 派发的任务包、验证实际产物并生成一份提交报告。
 
-## 协议 0.4
+## 协议 0.5
 
 统一流程为：
 
@@ -102,11 +102,11 @@ $serf
 
 ## 公共字段
 
-任务包使用：
+任务包使用以下共享字段：
 
 ```yaml
-protocol_version: "0.4"
-profile: micro  # micro | standard | full
+protocol_version: "0.5"
+profile:  # micro | standard | full
 project_id:
 task_id:
 task_version:
@@ -120,14 +120,25 @@ expected_outputs: []
 acceptance_criteria: {}
 validation_methods: []
 depends_on: []
-execution_environment: {}
+inherits: []
+execution_environment:
+  requires_python: false
 submission_path:
+```
+
+`standard` 和 `full` 任务包增加以下字段；`output_language` 可选：
+
+```yaml
+target_adapter:  # generic-chat | coding | document | api | shared-workspace
+dispatch_mode:  # direct | semi-automatic | manual-copy
+authoritative_state_source:  # 例如 PROJECT_PLAN.md
+output_language:
 ```
 
 Serf 提交共享以下 Envelope：
 
 ```yaml
-protocol_version: "0.4"
+protocol_version: "0.5"
 profile:
 project_id:
 task_id:
@@ -189,11 +200,13 @@ python "$HOME/.codex/skills/.system/skill-creator/scripts/quick_validate.py" ".\
 python "$HOME/.codex/skills/.system/skill-creator/scripts/quick_validate.py" ".\serf"
 ```
 
-## 从协议 0.3 迁移
+## 迁移到协议 0.5
 
-协议 0.4 有意消除角色与产物歧义：
+从协议 0.4 升级时，应使用 `protocol_version: "0.5"` 重新生成未完成的任务包和报告。协议 0.5 为每个任务包增加简短的项目上下文索引，并在提交 Envelope 中拒绝弃用的 v0.3 字段名。
 
-| v0.3 | v0.4 |
+对于协议 0.3 用户，0.5 保留了 0.4 引入的规范命名：
+
+| v0.3 | v0.5 |
 |---|---|
 | `agent_id`、`Agent-A-01` | `task_id`、`Task-A-01` |
 | `status` | `task_status` |
@@ -208,4 +221,4 @@ python "$HOME/.codex/skills/.system/skill-creator/scripts/quick_validate.py" ".\
 | `agent-task.md` | `task-package.md` |
 | `micro-handoff.yaml`、`review-handoff.md` | `micro-review-report.yaml`、`review-report.md` |
 
-`$lord` 命令属于聊天/传输层，不再以 `lord_invocation` 存入机器可读报告。升级前应完成正在执行的 v0.3 工作，或将未完成的任务包和报告重新生成为 v0.4。
+`$lord` 命令属于聊天/传输层，不以 `lord_invocation` 存入机器可读报告。升级前应完成正在执行的旧协议工作，或将未完成的任务包和报告重新生成为 v0.5。

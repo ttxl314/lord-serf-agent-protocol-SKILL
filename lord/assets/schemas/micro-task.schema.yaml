@@ -23,7 +23,7 @@ required:
   - submission_path
 properties:
   protocol_version:
-    const: "0.4"
+    const: "0.5"
   profile:
     const: micro
   project_id:
@@ -41,6 +41,7 @@ properties:
   task_status:
     enum: [PENDING, READY, IN_PROGRESS, BLOCKED, REVIEW, REWORK, DONE, REJECTED, CANCELLED]
   objective:
+    description: One sentence connecting the project goal to this task's contribution.
     type: string
     minLength: 1
   inputs:
@@ -74,11 +75,12 @@ properties:
     items:
       type: string
   depends_on:
+    description: Upstream task IDs that affect this task.
     type: array
     items:
       type: string
   inherits:
-    description: Repo-root paths to authoritative files whose stable defaults apply; explicit task fields override inherited defaults.
+    description: Repo-root paths to the project overview, authoritative state, or interfaces needed for alignment; explicit task fields override inherited defaults.
     type: array
     items:
       type: string

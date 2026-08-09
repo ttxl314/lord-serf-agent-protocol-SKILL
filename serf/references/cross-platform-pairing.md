@@ -24,11 +24,11 @@ All paths above are relative to the active Serf skill root.
 - Validate parsed Markdown front matter with the common envelope schema.
 - Do not claim that a Markdown body was schema-validated.
 
-## 4. Protocol 0.4 Envelope
+## 4. Protocol 0.5 Envelope
 
-Copy `protocol_version: "0.4"`, `profile`, `project_id`, and `task_id` from the task package. Use a string `executed_task_version` such as `"v1"`, then add `submitted_at`, `submission_type`, `task_package_path`, and `report_path`.
+Copy `protocol_version: "0.5"`, `profile`, `project_id`, and `task_id` from the task package. Use a string `executed_task_version` such as `"v1"`, then add `submitted_at`, `submission_type`, `task_package_path`, and `report_path`.
 
-Do not mix v0.3 fields or `HANDOFFS/` paths into a v0.4 submission.
+Do not mix v0.3 fields or `HANDOFFS/` paths into a v0.5 submission.
 
 ## 5. Required Inputs and Submission
 

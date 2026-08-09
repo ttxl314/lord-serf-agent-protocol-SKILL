@@ -1,4 +1,4 @@
-protocol_version: "0.4"
+protocol_version: "0.5"
 profile: micro
 
 project_id:
@@ -7,6 +7,7 @@ task_version:
 updated_at:
 task_status: READY
 
+# In one sentence, connect the project goal to this task's contribution.
 objective:
 inputs: []
 allowed_paths: []
@@ -14,9 +15,11 @@ forbidden_paths: []
 expected_outputs: []
 acceptance_criteria: {}
 validation_methods: []
+# Upstream task IDs that affect this task.
 depends_on: []
 
-# Authoritative files whose stable defaults apply; explicit task fields override them.
+# Index only the project overview, authoritative state, and interfaces needed for alignment.
+# Explicit task fields override inherited defaults.
 inherits: []
 
 execution_environment:

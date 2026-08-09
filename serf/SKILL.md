@@ -2,7 +2,7 @@
 name: serf
 description: >
   Use when Codex or another runtime must act as the Serf executor for a
-  Lord-issued protocol v0.4 task package: verify task identity and boundaries,
+  Lord-issued protocol v0.5 task package: verify task identity and boundaries,
   inspect required inputs, execute only the assigned work, self-validate actual
   outputs, and submit `REVIEW`, `BLOCKED`, or `CHANGE_REQUEST` evidence. Do not
   use for project planning, task splitting, dispatch orchestration, authoritative
@@ -19,6 +19,7 @@ Serf must:
 
 - Read the task package before doing work.
 - Verify `protocol_version`, `profile`, `project_id`, `task_id`, `task_version`, and `task_package_path` when present.
+- Use the project context index to verify that the planned output supports the project goal and related work without expanding scope.
 - Understand inputs, upstream reports, boundaries, allowed paths, forbidden paths, expected outputs, acceptance criteria, and validation methods.
 - Work only inside the assigned boundary.
 - Request approval before changing public interfaces, architecture, shared data, shared paths, or another task's scope.
@@ -31,7 +32,7 @@ Serf must:
 
 1. Read and verify the task package using `references/task-package-intake.md`.
 2. Confirm required inputs, dependencies, permissions, runtime, boundary, and task version.
-3. Read only necessary task context and upstream submission reports.
+3. Read the indexed alignment files, necessary task context, and upstream submission reports.
 4. Plan the smallest execution path inside the assigned boundary.
 5. Execute the task and retain evidence.
 6. Validate against acceptance criteria using `references/self-validation.md`.
@@ -46,7 +47,7 @@ Serf must:
 ## Non-Negotiables
 
 - Treat the Lord task package as the requirements source.
-- Require protocol `0.4`; do not mix v0.3 field names or paths into v0.4 artifacts.
+- Require protocol `0.5`; do not mix v0.3 field names or paths into v0.5 artifacts.
 - Copy `profile`, `project_id`, and `task_id` unchanged into every submission report.
 - Record the executed version as `executed_task_version`.
 - Include `protocol_version`, `profile`, `project_id`, `task_id`, `executed_task_version`, `submitted_at`, `submission_type`, `task_package_path`, and `report_path` in every report envelope.

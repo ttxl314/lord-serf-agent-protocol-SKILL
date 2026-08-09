@@ -71,7 +71,7 @@ A critical unresolved risk may cause downstream failure, data loss, security exp
 Return a compact inline YAML report and state that it could not be saved:
 
 ```yaml
-protocol_version: "0.4"
+protocol_version: "0.5"
 profile: micro
 project_id: demo-project
 task_id: Task-A-01

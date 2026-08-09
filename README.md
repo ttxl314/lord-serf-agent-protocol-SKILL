@@ -7,7 +7,7 @@ Cross-platform paired skills for file-based orchestration of complex multi-execu
 - `lord` is the orchestration skill. It plans work, creates task packages, dispatches Serf executors, controls authoritative task state, and makes review decisions.
 - `serf` is the execution skill. It executes one Lord-issued task package, validates actual outputs, and creates one submission report.
 
-## Protocol 0.4
+## Protocol 0.5
 
 The canonical lifecycle is:
 
@@ -102,11 +102,11 @@ A submission type is not a task status. Only Lord updates authoritative task out
 
 ## Common Fields
 
-Task packages use:
+Task packages use these shared fields:
 
 ```yaml
-protocol_version: "0.4"
-profile: micro  # micro | standard | full
+protocol_version: "0.5"
+profile:  # micro | standard | full
 project_id:
 task_id:
 task_version:
@@ -120,14 +120,25 @@ expected_outputs: []
 acceptance_criteria: {}
 validation_methods: []
 depends_on: []
-execution_environment: {}
+inherits: []
+execution_environment:
+  requires_python: false
 submission_path:
+```
+
+`standard` and `full` task packages add these fields; `output_language` is optional:
+
+```yaml
+target_adapter:  # generic-chat | coding | document | api | shared-workspace
+dispatch_mode:  # direct | semi-automatic | manual-copy
+authoritative_state_source:  # e.g. PROJECT_PLAN.md
+output_language:
 ```
 
 Serf submissions share this envelope:
 
 ```yaml
-protocol_version: "0.4"
+protocol_version: "0.5"
 profile:
 project_id:
 task_id:
@@ -189,11 +200,13 @@ python "$HOME/.codex/skills/.system/skill-creator/scripts/quick_validate.py" ".\
 python "$HOME/.codex/skills/.system/skill-creator/scripts/quick_validate.py" ".\serf"
 ```
 
-## Migrating from Protocol 0.3
+## Migrating to Protocol 0.5
 
-Protocol 0.4 intentionally removes role and artifact ambiguity:
+From Protocol 0.4, regenerate unfinished task packages and reports with `protocol_version: "0.5"`. Protocol 0.5 adds a compact project context index to every task package and rejects deprecated v0.3 field names in submission envelopes.
 
-| v0.3 | v0.4 |
+For Protocol 0.3 users, 0.5 retains the canonical names introduced in 0.4:
+
+| v0.3 | v0.5 |
 |---|---|
 | `agent_id`, `Agent-A-01` | `task_id`, `Task-A-01` |
 | `status` | `task_status` |
@@ -208,4 +221,4 @@ Protocol 0.4 intentionally removes role and artifact ambiguity:
 | `agent-task.md` | `task-package.md` |
 | `micro-handoff.yaml`, `review-handoff.md` | `micro-review-report.yaml`, `review-report.md` |
 
-The `$lord` command belongs to the chat/transport layer and is no longer stored as `lord_invocation` in machine-readable reports. Finish active v0.3 work before upgrading, or regenerate unfinished task packages and reports as v0.4.
+The `$lord` command belongs to the chat/transport layer and is not stored as `lord_invocation` in machine-readable reports. Finish active older-protocol work before upgrading, or regenerate unfinished task packages and reports as v0.5.

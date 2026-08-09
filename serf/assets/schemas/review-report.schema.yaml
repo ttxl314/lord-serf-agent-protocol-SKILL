@@ -27,7 +27,7 @@ required:
   - report_path
 properties:
   protocol_version:
-    const: "0.4"
+    const: "0.5"
   profile:
     enum: [standard, full]
   project_id:

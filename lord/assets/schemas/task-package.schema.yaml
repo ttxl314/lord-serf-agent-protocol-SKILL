@@ -25,7 +25,7 @@ required:
   - submission_path
 properties:
   protocol_version:
-    const: "0.4"
+    const: "0.5"
   profile:
     enum: [standard, full]
   project_id:
@@ -50,6 +50,7 @@ properties:
     type: string
     minLength: 1
   background:
+    description: Compact project context index and only the additional background needed for alignment.
     type: string
   objective:
     type: string
@@ -84,6 +85,7 @@ properties:
     items:
       type: string
   depends_on:
+    description: Upstream task IDs that affect this task.
     type: array
     items:
       type: string
@@ -103,6 +105,7 @@ properties:
   output_language:
     type: string
   inherits:
+    description: Repo-root paths to authoritative project or interface files needed for alignment.
     type: array
     items:
       type: string
