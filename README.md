@@ -7,7 +7,7 @@ Cross-platform paired skills for file-based orchestration of complex multi-execu
 - `lord` is the orchestration skill. It plans work, creates task packages, dispatches Serf executors, controls authoritative task state, and makes review decisions.
 - `serf` is the execution skill. It executes one Lord-issued task package, validates actual outputs, and creates one submission report.
 
-## Protocol 0.5
+## Protocol 0.6
 
 The canonical lifecycle is:
 
@@ -29,6 +29,8 @@ Use these terms consistently:
 
 Chat is notification only. Project state, requirements, evidence, and decisions belong in files.
 
+Protocol 0.6 makes the two coordination patterns below first-class: optional `host` and `handoff` dispatch blocks, optional `execution_host` in reports, rules for duplicate submissions and in-flight version changes, and host documentation for Claude Code, Codex, and DSH. Field names are unchanged from 0.5; the only incompatible change is the `protocol_version` constant.
+
 ## Repository Structure
 
 ```text
@@ -36,6 +38,7 @@ Chat is notification only. Project state, requirements, evidence, and decisions 
 ├── .editorconfig
 ├── .gitattributes
 ├── .github/workflows/validate.yml
+├── CHANGELOG.md
 ├── lord/
 │   ├── SKILL.md
 │   ├── agents/openai.yaml
@@ -52,23 +55,20 @@ Chat is notification only. Project state, requirements, evidence, and decisions 
 
 Lord owns task and dispatch assets. Serf owns submission assets. Paths under `assets/` are relative to the active skill root.
 
-## Install in Codex
+## Install
 
-Copy both skill folders into the Codex skills directory:
+| Host | Skill directory | Invoke | Start an executor |
+|---|---|---|---|
+| Codex | `~/.codex/skills/lord`, `~/.codex/skills/serf` | `$lord`, `$serf` | multi-agent subagents where enabled |
+| Claude Code | `~/.claude/skills/lord`, `~/.claude/skills/serf` | `/lord`, `/serf`, or automatic | `Task` subagents |
+| DSH (DeepSeek) | `~/.dsh/skills/lord`, `~/.dsh/skills/serf` | `skill("lord")`, `skill("serf")` | `subagent` or `subagent_fork` |
+| Generic chat | attach the two `SKILL.md` files | none | human copy |
 
-```text
-~/.codex/skills/lord
-~/.codex/skills/serf
-```
+Copy both folders, reload the host, then invoke. Project-local installs also work: `.codex/skills/` for Codex and `.claude/skills/` for Claude Code.
 
-Restart Codex after replacing an installed version, then invoke:
+`$lord` and `$serf` are Codex shorthand. On any other host, use that host's invocation and keep every literal field. `agents/openai.yaml` is Codex UI metadata and is ignored elsewhere; DSH reads only the `SKILL.md` front matter.
 
-```text
-$lord
-$serf
-```
-
-The protocol is also usable outside Codex: load `lord/SKILL.md` for orchestration and `serf/SKILL.md` for execution, preserve literal field names and paths, and pass later work by task-package path.
+Host limits worth knowing before you dispatch: Claude Code writes may wait on approval, Codex writes are bound by its sandbox policy, and DSH writes are workspace-scoped. A blocked write is a blocker, never a reason to move the output. Details: `lord/references/host-runtimes.md`.
 
 ## Task Profiles
 
@@ -100,12 +100,27 @@ A submission type is not a task status. Only Lord updates authoritative task out
 5. Serf executes only the assigned work and submits `REVIEW`, `BLOCKED`, or `CHANGE_REQUEST`.
 6. Lord reviews actual outputs and evidence, then updates the authoritative state source.
 
+## Coordination Patterns
+
+| Pattern | Use when | Reference |
+|---|---|---|
+| Sequential | Work is dependent, or one executor is enough | `lord/references/dispatch-modes.md` |
+| Intra-application division of labor | Several workers run in one application on disjoint paths | `lord/references/intra-app-parallelism.md` |
+| Cross-application handoff | The executor runs in another application without shared chat | `lord/references/cross-application-handoff.md` |
+
+Both patterns keep one protocol: one task package per worker, one `submission_path` per task, and Lord as the only writer of the authoritative state source. `handoff` and `host` are optional dispatch instruction fields, and Serf reports `execution_host` when it is known.
+
+```
+handoff: dsh → word        (task package travels unchanged)
+fan-out: dsh → serf A, serf B, serf C   (disjoint paths, one wave)
+```
+
 ## Common Fields
 
 Task packages use these shared fields:
 
 ```yaml
-protocol_version: "0.5"
+protocol_version: "0.6"
 profile:  # micro | standard | full
 project_id:
 task_id:
@@ -138,7 +153,7 @@ output_language:
 Serf submissions share this envelope:
 
 ```yaml
-protocol_version: "0.5"
+protocol_version: "0.6"
 profile:
 project_id:
 task_id:
@@ -183,6 +198,8 @@ For Python work, Lord specifies a conda environment path, exact Python executabl
 
 Output language defaults to the active conversation language. The skills include guidance for UTF-8, CJK text, localized paths, shell quoting, Unicode-aware checks, and rendering-width hazards.
 
+On DSH the executor runs a DeepSeek model. Write those task packages with numbered, checkable steps and exact paths; the same rules are recorded in `lord/references/host-runtimes.md` and `serf/references/host-runtimes.md`.
+
 ## Validation
 
 ```text
@@ -190,7 +207,7 @@ python -m pip install -r requirements-dev.txt
 python scripts/validate_repo.py
 ```
 
-The validator checks UTF-8/LF hygiene, skill and UI metadata, canonical vocabulary, local references, YAML and JSON Schema definitions, template/profile compatibility, and representative protocol payloads. GitHub Actions runs the same command on pushes and pull requests.
+The validator checks UTF-8/LF hygiene, skill and UI metadata, canonical vocabulary, local references, YAML and JSON Schema definitions, template/profile compatibility, template heading structure, reference indexing, host and handoff assets, and representative protocol payloads. GitHub Actions runs the same command on pushes and pull requests.
 
 If Codex's `skill-creator` validator is available on Windows, force UTF-8 first:
 
@@ -200,13 +217,15 @@ python "$HOME/.codex/skills/.system/skill-creator/scripts/quick_validate.py" ".\
 python "$HOME/.codex/skills/.system/skill-creator/scripts/quick_validate.py" ".\serf"
 ```
 
-## Migrating to Protocol 0.5
+## Migrating to Protocol 0.6
 
-From Protocol 0.4, regenerate unfinished task packages and reports with `protocol_version: "0.5"`. Protocol 0.5 adds a compact project context index to every task package and rejects deprecated v0.3 field names in submission envelopes.
+Regenerate unfinished task packages, dispatch instructions, and reports with `protocol_version: "0.6"`. Field names did not change from 0.5, so the mechanical edit is the version constant; 0.6 adds the optional `host` and `handoff` dispatch blocks and the optional `execution_host` report field.
 
-For Protocol 0.3 users, 0.5 retains the canonical names introduced in 0.4:
+Protocol 0.6 keeps the compact project context index added in 0.5 and still rejects deprecated v0.3 field names in submission envelopes.
 
-| v0.3 | v0.5 |
+For Protocol 0.3 users, 0.6 retains the canonical names introduced in 0.4:
+
+| v0.3 | v0.6 |
 |---|---|
 | `agent_id`, `Agent-A-01` | `task_id`, `Task-A-01` |
 | `status` | `task_status` |
@@ -221,4 +240,4 @@ For Protocol 0.3 users, 0.5 retains the canonical names introduced in 0.4:
 | `agent-task.md` | `task-package.md` |
 | `micro-handoff.yaml`, `review-handoff.md` | `micro-review-report.yaml`, `review-report.md` |
 
-The `$lord` command belongs to the chat/transport layer and is not stored as `lord_invocation` in machine-readable reports. Finish active older-protocol work before upgrading, or regenerate unfinished task packages and reports as v0.5.
+The `$lord` command belongs to the chat/transport layer and is not stored as `lord_invocation` in machine-readable reports. Finish active older-protocol work before upgrading, or regenerate unfinished task packages and reports as v0.6.

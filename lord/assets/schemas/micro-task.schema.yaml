@@ -23,7 +23,7 @@ required:
   - submission_path
 properties:
   protocol_version:
-    const: "0.5"
+    const: "0.6"
   profile:
     const: micro
   project_id:

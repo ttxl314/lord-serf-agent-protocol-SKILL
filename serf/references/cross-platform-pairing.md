@@ -17,6 +17,8 @@ Serf never sets `REWORK`, `DONE`, `REJECTED`, or `CANCELLED`.
 
 All paths above are relative to the active Serf skill root.
 
+`$serf` is Codex shorthand. On another host, load the Serf skill in the form that host supports and keep every literal field; see `references/host-runtimes.md`.
+
 ## 3. Representation
 
 - Use Markdown for shared-workspace or human review.
@@ -24,11 +26,11 @@ All paths above are relative to the active Serf skill root.
 - Validate parsed Markdown front matter with the common envelope schema.
 - Do not claim that a Markdown body was schema-validated.
 
-## 4. Protocol 0.5 Envelope
+## 4. Protocol 0.6 Envelope
 
-Copy `protocol_version: "0.5"`, `profile`, `project_id`, and `task_id` from the task package. Use a string `executed_task_version` such as `"v1"`, then add `submitted_at`, `submission_type`, `task_package_path`, and `report_path`.
+Copy `protocol_version: "0.6"`, `profile`, `project_id`, and `task_id` from the task package. Use a string `executed_task_version` such as `"v1"`, then add `submitted_at`, `submission_type`, `task_package_path`, and `report_path`.
 
-Do not mix v0.3 fields or `HANDOFFS/` paths into a v0.5 submission.
+Do not mix v0.3 fields or `HANDOFFS/` paths into a v0.6 submission.
 
 ## 5. Required Inputs and Submission
 

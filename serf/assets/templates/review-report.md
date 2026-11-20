@@ -1,5 +1,5 @@
 ---
-protocol_version: "0.5"
+protocol_version: "0.6"
 profile: # standard | full
 project_id:
 task_id:
@@ -8,6 +8,8 @@ submitted_at:
 submission_type: REVIEW
 task_package_path:
 report_path: "REVIEWS/[task_id]-REVIEW.md"
+# Optional: application or host that executed the task.
+# execution_host: dsh
 ---
 
 # Review Submission
@@ -27,9 +29,3 @@ Map acceptance IDs to concise results and evidence. One check may support multip
 ## Exceptions
 
 Omit this section when empty. Otherwise include only relevant assumptions, skipped checks, risks, incomplete items, interface impact, or a requested Lord decision.
-
-# Lord Review Command
-
-```text
-$lord review REVIEWS/[task_id]-REVIEW.md
-```

@@ -16,7 +16,7 @@ required:
   - worker_invocation
 properties:
   protocol_version:
-    const: "0.5"
+    const: "0.6"
   profile:
     enum: [micro, standard, full]
   project_id:
@@ -44,5 +44,41 @@ properties:
   worker_skill:
     const: serf
   worker_invocation:
-    const: "$serf"
+    description: Host-specific form that starts the Serf skill; "$serf" on Codex.
+    type: string
+    minLength: 1
+  host:
+    description: Optional record of the application and model that executes the task.
+    type: object
+    required: [agent]
+    properties:
+      agent:
+        enum: [codex, claude-code, dsh, generic-chat, other]
+      model:
+        type: string
+        minLength: 1
+      skill_invocation:
+        type: string
+        minLength: 1
+      supports_subagents:
+        type: boolean
+      shared_workspace:
+        type: boolean
+    additionalProperties: false
+  handoff:
+    description: Optional record of one cross-application hop.
+    type: object
+    required: [from_app, to_app, transport]
+    properties:
+      from_app:
+        type: string
+        minLength: 1
+      to_app:
+        type: string
+        minLength: 1
+      transport:
+        enum: [shared-workspace, synced-folder, upload, paste]
+      return_transport:
+        enum: [shared-workspace, synced-folder, upload, paste]
+    additionalProperties: false
 additionalProperties: false

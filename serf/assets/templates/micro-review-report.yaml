@@ -1,4 +1,4 @@
-protocol_version: "0.5"
+protocol_version: "0.6"
 profile: micro
 
 project_id:
@@ -15,3 +15,5 @@ assumptions: []
 issues: []
 
 report_path: "REVIEWS/[task_id]-REVIEW.yaml"
+# Optional: application or host that executed the task.
+# execution_host: dsh

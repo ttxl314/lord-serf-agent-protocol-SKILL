@@ -59,3 +59,12 @@ When `requires_python: true`, use the specified runtime exactly:
 - Do not silently fall back to system Python or another conda environment.
 
 If the specified runtime is unavailable, unreadable, or fails basic version checks, submit a blocker report.
+
+## 6. Version Drift
+
+The task package can move while you work.
+
+- Re-read the package before the final report and compare `task_version` with the version you executed.
+- If Lord bumped the version, submit `BLOCKED` naming both versions. A report for a version Lord no longer accepts is stale, so do not submit it as `REVIEW`.
+- If the content changed but `task_version` did not, treat the package as corrupted: stop and submit `BLOCKED`.
+- Never edit the task package yourself.

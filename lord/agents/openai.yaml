@@ -1,4 +1,4 @@
 interface:
   display_name: "Lord"
-  short_description: "Orchestrate Serf executors across platforms"
-  default_prompt: "Use $lord to split this complex project into versioned task packages, dispatch Serf executors, and review their submission reports."
+  short_description: "Orchestrate Serf executors across apps and hosts"
+  default_prompt: "Use $lord to split this complex project into versioned task packages, dispatch Serf executors through capability adapters, and review their submission reports."

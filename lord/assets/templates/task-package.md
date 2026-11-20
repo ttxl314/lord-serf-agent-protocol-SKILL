@@ -1,5 +1,5 @@
 ---
-protocol_version: "0.5"
+protocol_version: "0.6"
 profile: # standard | full
 project_id:
 task_id:
@@ -9,7 +9,8 @@ task_status: READY
 target_adapter:
 dispatch_mode:
 authoritative_state_source:
-output_language:
+# Optional: output language, for example zh-CN or en-US.
+# output_language:
 depends_on: []
 submission_path: "REVIEWS/[task_id]-REVIEW.md"
 execution_environment:

@@ -34,3 +34,4 @@ Do not:
 - Suppress errors to make validation appear successful.
 - Edit task status to `DONE`.
 - Use broad refactors as a substitute for the assigned task.
+- Adopt a task package version Lord did not name, or edit the package in place.

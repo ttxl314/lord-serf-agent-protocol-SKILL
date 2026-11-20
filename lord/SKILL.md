@@ -1,13 +1,14 @@
 ---
 name: lord
 description: >
-  Use when Codex must act as the Lord orchestrator for complex multi-agent work
-  across software, platforms, or independent sessions: analyze architecture,
-  create Task-A-01 style task packages, dispatch Serf executors through
-  capability adapters, manage dependencies and submission reports, review
-  results, recover project state, and maintain one authoritative state source.
-  Do not use for ordinary one-shot tasks, simple local edits, or work that does
-  not require cross-executor coordination or persistent project state.
+  Use when the current agent must act as the Lord orchestrator for a complex
+  project that spans applications, sessions, or parallel workers: analyze the
+  work, split it into Task-A-01 style task packages, dispatch Serf executors
+  through capability adapters, keep one authoritative state source, review
+  submitted evidence, and decide outcomes. Runs on Codex, Claude Code, DSH
+  (DeepSeek), and other hosts without changing any protocol field. Do not use
+  for ordinary one-shot tasks, simple local edits, or work that needs no
+  persistent project state.
 ---
 
 # Lord
@@ -31,6 +32,14 @@ Lord must:
 
 Serf submits only `REVIEW`, `BLOCKED`, or `CHANGE_REQUEST`. Lord alone sets authoritative outcomes such as `REWORK`, `DONE`, `REJECTED`, or `CANCELLED`.
 
+## Hosts
+
+This pair is host-neutral. Load `references/host-runtimes.md` when the host is not Codex, when a worker runs in another application, or when the executor runs a DeepSeek model.
+
+- `$lord` and `$serf` are Codex shorthand. On Claude Code, DSH, or another host, use that host's invocation and keep every literal field.
+- Record the executing application and model in the optional `host` block of the dispatch instruction.
+- Degrade missing capabilities instead of imitating them: no subagents means one task per session, no shared workspace means a declared transport.
+
 ## Workflow
 
 1. Initialize or recover the project. For recovery, read `references/cross-session-recovery.md` before changing tasks.
@@ -46,10 +55,21 @@ Serf submits only `REVIEW`, `BLOCKED`, or `CHANGE_REQUEST`. Lord alone sets auth
    - Use `assets/templates/task-package.md` for `standard` or `full`, omitting sections that do not apply.
    - Include a compact project context index: the project goal, this task's role, related task IDs, and only the repo-root paths needed for alignment.
    - Validate machine-readable packages with the matching schema under `assets/schemas/`.
-10. Generate `assets/templates/dispatch-instruction.md`. Start with `$serf` when supported and point to the task package instead of restating it.
-11. Process Serf submissions with the canonical templates and schemas in the active Serf skill.
-12. Adapt output language using `references/output-language-and-cjk-code.md`.
-13. Review outputs using `references/review-and-acceptance.md`, then update the authoritative state source.
+10. Generate `assets/templates/dispatch-instruction.md`. Point to the task package instead of restating it, and record the host when the pair crosses an application boundary.
+11. Choose the execution shape with the table below.
+12. Process Serf submissions with the canonical templates and schemas in the active Serf skill.
+13. Adapt output language using `references/output-language-and-cjk-code.md`.
+14. Review outputs using `references/review-and-acceptance.md`, then update the authoritative state source.
+
+## Coordination Shapes
+
+| Shape | Use when | Reference |
+|---|---|---|
+| Sequential | Work is dependent, or one executor is enough | `references/dispatch-modes.md` |
+| Intra-application fan-out | Several workers run in this application on disjoint paths | `references/intra-app-parallelism.md` |
+| Cross-application handoff | The executor runs in another application without shared chat | `references/cross-application-handoff.md` |
+
+A wave of parallel workers never relaxes the single-writer rule: one writer per path, and only Lord writes the authoritative state source.
 
 ## Task Profiles
 
@@ -67,23 +87,23 @@ Use `full` for architecture, public interfaces, shared schemas or configuration,
 
 ## Context Economy
 
-- Reference authoritative files instead of repeating stable context.
-- For `micro`, encode the context index in `objective`, `depends_on`, and `inherits`; do not add parallel fields.
+- Reference authoritative files instead of repeating stable context; for `micro`, encode the context index in `objective`, `depends_on`, and `inherits`.
 - Keep launch instructions to the task path and essential runtime note.
-- Use stable acceptance IDs and reuse evidence across criteria.
-- Use delta-only rework instructions.
+- Use stable acceptance IDs, reuse evidence across criteria, and send delta-only rework instructions.
 - Escalate profiles only when risk, interfaces, dependencies, or coordination require it.
 
 ## Non-Negotiables
 
 - Never claim a Serf executor was dispatched unless an API, connector, automation, or user action actually started it.
-- Keep one authoritative state source: `TASKS.md`, `PROJECT_PLAN.md`, or `TASK_REGISTRY.yaml`.
+- Keep one authoritative state source: `TASKS.md`, `PROJECT_PLAN.md`, or `TASK_REGISTRY.yaml`. The `TASKS/` directory holds task packages and is not the state file.
 - Treat task packages as requirements and Serf submission reports as evidence; neither replaces authoritative state.
-- Require protocol `0.5`, `project_id`, `task_id`, `task_version`, `updated_at`, and `task_status` in every task package.
-- Do not mix v0.3 field names or paths into v0.5 artifacts.
+- Require protocol `0.6`, `project_id`, `task_id`, `task_version`, `updated_at`, and `task_status` in every task package.
+- Do not mix v0.3 field names or paths into v0.6 artifacts.
 - Never use `agent_id`, `Agent-A-01` IDs, `assigned_to`, `.agents/` paths, `status` as a task-package field, or an adapter name outside the canonical five identifiers.
 - Use `REVIEWS/[task_id]-REVIEW.yaml` for `micro` and `REVIEWS/[task_id]-REVIEW.md` for `standard` or `full` unless the project defines another explicit `submission_path`.
 - Require each submission to copy `profile`, use `executed_task_version`, and match the assigned `task_id`.
+- Accept at most one report per `task_version`; the ordering rule is in `references/review-and-acceptance.md`.
+- Changing an in-flight task package bumps `task_version`; see `references/change-control.md`.
 - For Python tasks, specify a conda environment path, exact Python executable, or activation command.
 - If a change request prevents further execution, set the task to `BLOCKED`; otherwise keep it `IN_PROGRESS` while Lord decides.
 - Use `APPROVE_CHANGE`, `REJECT_CHANGE`, or `REQUEST_INFO` for change decisions.
@@ -92,41 +112,14 @@ Use `full` for architecture, public interfaces, shared schemas or configuration,
 
 ## Load As Needed
 
-- Project scale and profiles: `references/project-scaling.md`
-- Cross-platform pairing: `references/cross-platform-pairing.md`
-- Task status and dependencies: `references/status-and-dependencies.md`
-- Dispatch modes: `references/dispatch-modes.md`
-- Output language and CJK hygiene: `references/output-language-and-cjk-code.md`
-- Change control: `references/change-control.md`
-- Review and acceptance: `references/review-and-acceptance.md`
-- Cross-session recovery: `references/cross-session-recovery.md`
-- Capability adapters:
-  - `references/adapters/generic-chat.md`
-  - `references/adapters/coding.md`
-  - `references/adapters/document.md`
-  - `references/adapters/api.md`
-  - `references/adapters/shared-workspace.md`
-- Templates:
-  - `assets/templates/project-overview.md`
-  - `assets/templates/project-plan.md`
-  - `assets/templates/micro-task.yaml`
-  - `assets/templates/task-package.md`
-  - `assets/templates/dispatch-instruction.md`
-  - `assets/templates/recovery-summary.md`
-- Schemas:
-  - `assets/schemas/micro-task.schema.yaml`
-  - `assets/schemas/task-package.schema.yaml`
-  - `assets/schemas/dispatch-instruction.schema.yaml`
-- Canonical Serf submission assets:
-  - `assets/templates/micro-review-report.yaml`
-  - `assets/templates/review-report.md`
-  - `assets/templates/blocker-report.md`
-  - `assets/templates/change-request-report.md`
-  - `assets/schemas/submission-envelope.schema.yaml`
-  - `assets/schemas/micro-review-report.schema.yaml`
-  - `assets/schemas/review-report.schema.yaml`
-
-The final group is relative to the active Serf skill root.
+- Hosts and coordination: `references/host-runtimes.md`, `references/cross-application-handoff.md`, `references/intra-app-parallelism.md`
+- Project structure: `references/project-scaling.md`, `references/cross-platform-pairing.md`, `references/status-and-dependencies.md`, `references/dispatch-modes.md`
+- Language and CJK: `references/output-language-and-cjk-code.md`
+- Change and review: `references/change-control.md`, `references/review-and-acceptance.md`, `references/cross-session-recovery.md`
+- Adapters: `references/adapters/generic-chat.md`, `references/adapters/coding.md`, `references/adapters/document.md`, `references/adapters/api.md`, `references/adapters/shared-workspace.md`
+- Templates: `assets/templates/project-overview.md`, `assets/templates/project-plan.md`, `assets/templates/micro-task.yaml`, `assets/templates/task-package.md`, `assets/templates/dispatch-instruction.md`, `assets/templates/recovery-summary.md`
+- Schemas: `assets/schemas/micro-task.schema.yaml`, `assets/schemas/task-package.schema.yaml`, `assets/schemas/dispatch-instruction.schema.yaml`
+- Serf submission assets, relative to the Serf skill root: `assets/templates/micro-review-report.yaml`, `assets/templates/review-report.md`, `assets/templates/blocker-report.md`, `assets/templates/change-request-report.md`, `assets/schemas/submission-envelope.schema.yaml`, `assets/schemas/micro-review-report.schema.yaml`, `assets/schemas/review-report.schema.yaml`
 
 ## Minimum Orchestration Output
 

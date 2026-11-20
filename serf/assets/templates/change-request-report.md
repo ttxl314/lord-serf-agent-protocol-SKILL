@@ -1,5 +1,5 @@
 ---
-protocol_version: "0.5"
+protocol_version: "0.6"
 profile: # micro | standard | full
 project_id:
 task_id:
@@ -8,6 +8,8 @@ submitted_at:
 submission_type: CHANGE_REQUEST
 task_package_path:
 report_path: "CHANGE_REQUESTS/[task_id]-CHANGE-REQUEST.md"
+# Optional: application or host that executed the task.
+# execution_host: dsh
 ---
 
 # Change-Request Submission
@@ -31,9 +33,3 @@ List affected files, interfaces, tasks, rollback needs, and validation considera
 ## Decision Needed
 
 Request `APPROVE_CHANGE`, `REJECT_CHANGE`, or `REQUEST_INFO` and identify the decision owner.
-
-# Lord Resolve Command
-
-```text
-$lord resolve CHANGE_REQUESTS/[task_id]-CHANGE-REQUEST.md
-```

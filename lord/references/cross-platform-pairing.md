@@ -15,7 +15,7 @@ Serf submits only `REVIEW`, `BLOCKED`, or `CHANGE_REQUEST`. Lord alone sets auth
 
 Paths beginning with `assets/` are relative to the active skill root. In a sibling offline installation, the Serf root is commonly `../serf/` relative to Lord.
 
-## 3. Protocol 0.5 Envelope
+## 3. Protocol 0.6 Envelope
 
 Use string task versions and these common submission fields:
 
@@ -29,7 +29,7 @@ Use string task versions and these common submission fields:
 - `task_package_path`
 - `report_path`
 
-Do not mix v0.3 fields such as `agent_id`, `status`, `return_path`, `handoff_path`, `changed`, `result`, or `validation` into v0.5 artifacts.
+Do not mix v0.3 fields such as `agent_id`, `status`, `return_path`, `handoff_path`, `changed`, `result`, or `validation` into v0.6 artifacts.
 
 ## 4. Representation
 
@@ -44,6 +44,8 @@ Dispatch only the Serf invocation, task-package path, unavailable required input
 
 Every Serf submission contains one report path, concise evidence, and one matching path-based `$lord` command in chat. The command is transport metadata, not a machine-report field.
 
-## 6. Non-Codex Platforms
+## 6. Non-Codex Hosts
+
+`$lord` and `$serf` are Codex shorthand. On another host, load the named skill in the form that host supports; see `references/host-runtimes.md` for the matrix and the degradation order.
 
 Treat `lord` and `serf` as role names when skill invocation is unavailable. Preserve protocol field names, status values, submission types, adapter names, and paths exactly.

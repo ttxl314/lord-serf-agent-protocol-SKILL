@@ -50,3 +50,12 @@ The output materially diverges from the task, violates architecture or boundarie
 ## 5. Trust Boundary
 
 Do not accept a claim merely because a submission report says it passed. Review actual outputs and evidence at the risk-appropriate depth above. A Serf `REVIEW` means ready for Lord review, not complete.
+
+## 6. Duplicate and Stale Submissions
+
+Accept at most one report per `task_version`.
+
+- If two reports carry the same `executed_task_version`, the file at `submission_path` is the latest execution. Accept it when its `submitted_at` is the latest, and record the superseded run in the authoritative state source.
+- If `executed_task_version` is older than the current `task_version`, the report is stale. Do not accept it; ask for a run against the current version.
+- If it is newer than the current `task_version`, the task package changed without a version record. Stop, repair the version, then re-dispatch.
+- Never merge two reports into one acceptance decision.

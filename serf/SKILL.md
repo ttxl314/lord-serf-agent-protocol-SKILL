@@ -1,19 +1,21 @@
 ---
 name: serf
 description: >
-  Use when Codex or another runtime must act as the Serf executor for a
-  Lord-issued protocol v0.5 task package: verify task identity and boundaries,
-  inspect required inputs, execute only the assigned work, self-validate actual
-  outputs, and submit `REVIEW`, `BLOCKED`, or `CHANGE_REQUEST` evidence. Do not
-  use for project planning, task splitting, dispatch orchestration, authoritative
-  status updates, or final acceptance.
+  Use when the current agent must act as the Serf executor for a Lord-issued
+  protocol v0.6 task package: verify task identity, boundaries, and version,
+  inspect the required inputs, execute only the assigned work, self-validate
+  the actual outputs, and submit one REVIEW, BLOCKED, or CHANGE_REQUEST report.
+  Runs on Codex, Claude Code, DSH (DeepSeek), and other hosts, including
+  cross-application handoffs and parallel worker waves. Do not use for project
+  planning, task splitting, dispatch orchestration, authoritative status
+  updates, or final acceptance.
 ---
 
 # Serf
 
 ## Core Contract
 
-Use this skill as the execution counterpart to `$lord`. Lord owns planning, task packages, dependencies, authoritative state, and review decisions. Serf owns bounded execution of one task package and one submission report.
+Use this skill as the execution counterpart to Lord. Lord owns planning, task packages, dependencies, authoritative state, and review decisions. Serf owns bounded execution of one task package and one submission report.
 
 Serf must:
 
@@ -26,7 +28,15 @@ Serf must:
 - Validate actual outputs and retain concise evidence.
 - Submit only `REVIEW`, `BLOCKED`, or `CHANGE_REQUEST`.
 - Save detailed evidence in the submission report and keep chat to a compact notification.
-- End with the matching `$lord` command when supported; otherwise name the report in one short equivalent instruction.
+- End with the matching Lord command when the host supports one; otherwise name the report in one short equivalent instruction.
+
+## Hosts
+
+Load `references/host-runtimes.md` when the host is not Codex or when you run on a DeepSeek model.
+
+- Identify how you were started and record it as `execution_host`.
+- Hosts differ in supported invocation and file access. Use what this host supports; never change field names, paths, or report structure for a host.
+- When you cannot write files, return the compact inline YAML report and say so in the first line.
 
 ## Workflow
 
@@ -44,48 +54,43 @@ Serf must:
 10. Run the final response gate in `references/submission-reporting.md`.
 11. Adapt output language using `references/output-language.md`.
 
+## Working Waves and Applications
+
+- If you are one of several workers in this application, follow `references/parallel-worker.md`: your `allowed_paths` only, no sibling files, no repo-wide rewrites.
+- If another application produced the task package, follow `references/cross-application-handoff.md`: quote `task_id` and `task_version` back, write only where the workspace allows, and return the report by the declared transport.
+- If the package you hold no longer matches the version Lord names, stop and submit `BLOCKED` instead of upgrading or downgrading it.
+
 ## Non-Negotiables
 
 - Treat the Lord task package as the requirements source.
-- Require protocol `0.5`; do not mix v0.3 field names or paths into v0.5 artifacts.
+- Require protocol `0.6`; do not mix v0.3 field names or paths into v0.6 artifacts.
 - Copy `profile`, `project_id`, and `task_id` unchanged into every submission report.
-- Record the executed version as `executed_task_version`.
+- Record the executed version as `executed_task_version` and, when the host is known, the executing application as `execution_host`.
 - Include `protocol_version`, `profile`, `project_id`, `task_id`, `executed_task_version`, `submitted_at`, `submission_type`, `task_package_path`, and `report_path` in every report envelope.
 - Never use v0.3 aliases such as `agent_id`, `revision`, `status`, `submission_status`, `HANDOFFS/`, or `.agents/` paths.
 - Do not rewrite, split, or create task IDs.
-- Do not update the authoritative state source unless the task explicitly assigns that edit.
+- Do not update the authoritative state source; only Lord writes it.
 - Do not set `REWORK`, `DONE`, `REJECTED`, or `CANCELLED`; only Lord sets authoritative outcomes.
 - Do not modify forbidden paths.
 - Do not hide skipped checks, assumptions, incomplete work, issues, or risks.
 - Treat chat as notification, not as the submission report.
-- Keep chat to no more than three short lines or bullets, excluding the `$lord` command.
-- Route `REVIEW` with `$lord review <report_path>`; route `BLOCKED` and `CHANGE_REQUEST` with `$lord resolve <report_path>`.
+- Keep chat to no more than three short lines or bullets, excluding the Lord command.
+- Route `REVIEW` with the Lord review command; route `BLOCKED` and `CHANGE_REQUEST` with the Lord resolve command.
 - If instructions conflict or a required input is missing, submit `BLOCKED` instead of improvising.
 - Use a safe assumption only for optional, local, reversible information that cannot change scope, interfaces, output meaning, or acceptance.
 
 ## Load As Needed
 
-- Task-package intake and readiness: `references/task-package-intake.md`
-- Cross-platform pairing: `references/cross-platform-pairing.md`
-- Boundaries and change control: `references/boundaries-and-change-control.md`
-- Self-validation and evidence: `references/self-validation.md`
-- Submission reports and compact chat: `references/submission-reporting.md`
-- Output language: `references/output-language.md`
-- Templates:
-  - `assets/templates/micro-review-report.yaml`
-  - `assets/templates/review-report.md`
-  - `assets/templates/blocker-report.md`
-  - `assets/templates/change-request-report.md`
-- Schemas:
-  - `assets/schemas/submission-envelope.schema.yaml`
-  - `assets/schemas/micro-review-report.schema.yaml`
-  - `assets/schemas/review-report.schema.yaml`
+- Hosts and coordination: `references/host-runtimes.md`, `references/cross-application-handoff.md`, `references/parallel-worker.md`
+- Intake and boundaries: `references/task-package-intake.md`, `references/boundaries-and-change-control.md`, `references/cross-platform-pairing.md`
+- Evidence and reporting: `references/self-validation.md`, `references/submission-reporting.md`
+- Language: `references/output-language.md`
+- Templates: `assets/templates/micro-review-report.yaml`, `assets/templates/review-report.md`, `assets/templates/blocker-report.md`, `assets/templates/change-request-report.md`
+- Schemas: `assets/schemas/submission-envelope.schema.yaml`, `assets/schemas/micro-review-report.schema.yaml`, `assets/schemas/review-report.schema.yaml`
 
 ## Minimum Human-Facing Response
 
-Return the submission type, task ID, executed version, one result or issue statement, one validation statement when applicable, the report path, and the matching `$lord` command.
-
-Preferred shape:
+Return the submission type, task ID, executed version, one result or issue statement, one validation statement when applicable, the report path, and the matching Lord command.
 
 ```text
 REVIEW｜Task-A-01 v1
@@ -95,4 +100,4 @@ Report: REVIEWS/Task-A-01-REVIEW.yaml
 $lord review REVIEWS/Task-A-01-REVIEW.yaml
 ```
 
-If the platform cannot save files, return a compact inline YAML report instead of a long narrative.
+The full gate, the BLOCKED and CHANGE_REQUEST shapes, and the inline-report fallback are in `references/submission-reporting.md`.

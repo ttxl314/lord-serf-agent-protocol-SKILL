@@ -7,7 +7,7 @@
 - `lord` 是编排 Skill：负责规划、生成任务包、派发 Serf 执行端、维护权威任务状态并作出审阅决策。
 - `serf` 是执行 Skill：负责执行一个 Lord 派发的任务包、验证实际产物并生成一份提交报告。
 
-## 协议 0.5
+## 协议 0.6
 
 统一流程为：
 
@@ -29,6 +29,8 @@
 
 聊天只用于通知；项目状态、需求、证据和决策都应保存在文件中。
 
+协议 0.6 把下述两种协同方式升为一等能力：可选的 `host`、`handoff` 派发块，报告里可选的 `execution_host`，重复提交与执行中版本变更的规则，以及 Claude Code、Codex、DSH 三家的宿主说明。字段名与 0.5 完全一致，唯一不兼容处是 `protocol_version` 常量。
+
 ## 仓库结构
 
 ```text
@@ -36,6 +38,7 @@
 ├── .editorconfig
 ├── .gitattributes
 ├── .github/workflows/validate.yml
+├── CHANGELOG.md
 ├── lord/
 │   ├── SKILL.md
 │   ├── agents/openai.yaml
@@ -52,23 +55,20 @@
 
 Lord 负责任务与派发资源，Serf 负责提交资源。`assets/` 下的路径均相对于当前激活的 Skill 根目录解释。
 
-## 在 Codex 中安装
+## 安装
 
-将两个 Skill 文件夹复制到 Codex Skills 目录：
+| 宿主 | Skill 目录 | 调用 | 启动执行端 |
+|---|---|---|---|
+| Codex | `~/.codex/skills/lord`、`~/.codex/skills/serf` | `$lord`、`$serf` | 启用时的多智能体子代理 |
+| Claude Code | `~/.claude/skills/lord`、`~/.claude/skills/serf` | `/lord`、`/serf`，或按描述自动调用 | `Task` 子代理 |
+| DSH（DeepSeek） | `~/.dsh/skills/lord`、`~/.dsh/skills/serf` | `skill("lord")`、`skill("serf")` | `subagent` 或 `subagent_fork` |
+| 通用聊天 | 附上两个 `SKILL.md` | 无 | 人工复制 |
 
-```text
-~/.codex/skills/lord
-~/.codex/skills/serf
-```
+复制两个文件夹后重载宿主即可调用。项目内安装同样可用：Codex 放 `.codex/skills/`，Claude Code 放 `.claude/skills/`。
 
-覆盖已安装版本后重启 Codex，然后调用：
+`$lord` 与 `$serf` 是 Codex 的简写。在其他宿主上改用该宿主的调用形式，字段名一律保持字面值。`agents/openai.yaml` 是 Codex 的界面元数据，其他宿主忽略；DSH 只读取 `SKILL.md` 的 front matter。
 
-```text
-$lord
-$serf
-```
-
-该协议也可在 Codex 之外使用：编排端加载 `lord/SKILL.md`，执行端加载 `serf/SKILL.md`，保持字段名和路径字面值不变，后续任务只传递任务包路径。
+派发前值得知道的宿主限制：Claude Code 的写入可能等待授权，Codex 的写入受其沙箱策略约束，DSH 的写入限于工作区。写入被拒是 `BLOCKED`，不是把产物挪个地方的理由。详见 `lord/references/host-runtimes.md`。
 
 ## 任务档位
 
@@ -100,12 +100,27 @@ $serf
 5. Serf 只执行被分配的工作，并提交 `REVIEW`、`BLOCKED` 或 `CHANGE_REQUEST`。
 6. Lord 审查实际产物与证据，然后更新权威状态源。
 
+## 协同方式
+
+| 方式 | 适用情况 | 参考 |
+|---|---|---|
+| 串行 | 任务相互依赖，或一个执行端足够 | `lord/references/dispatch-modes.md` |
+| 应用内分工 | 同一应用内多个执行端并行，路径互不重叠 | `lord/references/intra-app-parallelism.md` |
+| 跨应用交接 | 执行端在另一个应用里，彼此看不到聊天 | `lord/references/cross-application-handoff.md` |
+
+两种方式共用同一套协议：每个执行端一个任务包，每个任务一个 `submission_path`，权威状态源只有 Lord 可以写入。`handoff`、`host` 是可选派发字段；Serf 在可知时报告 `execution_host`。
+
+```
+交接：dsh → Word        （任务包原样传递，不产生分叉）
+分工：dsh → serf A、serf B、serf C   （路径不重叠，同一批次）
+```
+
 ## 公共字段
 
 任务包使用以下共享字段：
 
 ```yaml
-protocol_version: "0.5"
+protocol_version: "0.6"
 profile:  # micro | standard | full
 project_id:
 task_id:
@@ -138,7 +153,7 @@ output_language:
 Serf 提交共享以下 Envelope：
 
 ```yaml
-protocol_version: "0.5"
+protocol_version: "0.6"
 profile:
 project_id:
 task_id:
@@ -183,6 +198,8 @@ Python 任务由 Lord 指定 Conda 环境路径、准确 Python 可执行文件�
 
 输出语言默认跟随当前会话语言。Skill 还包括 UTF-8、中文/CJK 文本、本地化路径、Shell 引号、Unicode 检查和渲染宽度风险指导。
 
+在 DSH 上执行端运行 DeepSeek 模型。这类任务包应写成编号、可核验的步骤并给出确切路径，规则同时记录在 `lord/references/host-runtimes.md` 与 `serf/references/host-runtimes.md`。
+
 ## 验证
 
 ```text
@@ -190,7 +207,7 @@ python -m pip install -r requirements-dev.txt
 python scripts/validate_repo.py
 ```
 
-校验器会检查 UTF-8/LF 格式、Skill 与 UI 元数据、规范术语、本地引用、YAML 和 JSON Schema、模板与档位兼容性，以及代表性协议载荷。GitHub Actions 会在 push 和 pull request 时运行相同命令。
+校验器会检查 UTF-8/LF 格式、Skill 与 UI 元数据、规范术语、本地引用、YAML 和 JSON Schema、模板与档位兼容性、模板标题结构、参考文件索引、宿主与交接资源，以及代表性协议载荷。GitHub Actions 会在 push 和 pull request 时运行相同命令。
 
 如果 Windows 上还安装了 Codex 的 `skill-creator` 校验器，请先强制启用 UTF-8：
 
@@ -200,13 +217,15 @@ python "$HOME/.codex/skills/.system/skill-creator/scripts/quick_validate.py" ".\
 python "$HOME/.codex/skills/.system/skill-creator/scripts/quick_validate.py" ".\serf"
 ```
 
-## 迁移到协议 0.5
+## 迁移到协议 0.6
 
-从协议 0.4 升级时，应使用 `protocol_version: "0.5"` 重新生成未完成的任务包和报告。协议 0.5 为每个任务包增加简短的项目上下文索引，并在提交 Envelope 中拒绝弃用的 v0.3 字段名。
+用 `protocol_version: "0.6"` 重新生成未完成的任务包、派发指令和报告。字段名相对 0.5 没有变化，机械改动只是版本常量；0.6 新增可选的 `host`、`handoff` 派发块与可选的 `execution_host` 报告字段。
 
-对于协议 0.3 用户，0.5 保留了 0.4 引入的规范命名：
+协议 0.6 保留 0.5 引入的项目上下文索引，并继续在提交 Envelope 中拒绝弃用的 v0.3 字段名。
 
-| v0.3 | v0.5 |
+对于协议 0.3 用户，0.6 保留了 0.4 引入的规范命名：
+
+| v0.3 | v0.6 |
 |---|---|
 | `agent_id`、`Agent-A-01` | `task_id`、`Task-A-01` |
 | `status` | `task_status` |
@@ -221,4 +240,4 @@ python "$HOME/.codex/skills/.system/skill-creator/scripts/quick_validate.py" ".\
 | `agent-task.md` | `task-package.md` |
 | `micro-handoff.yaml`、`review-handoff.md` | `micro-review-report.yaml`、`review-report.md` |
 
-`$lord` 命令属于聊天/传输层，不以 `lord_invocation` 存入机器可读报告。升级前应完成正在执行的旧协议工作，或将未完成的任务包和报告重新生成为 v0.5。
+`$lord` 命令属于聊天/传输层，不以 `lord_invocation` 存入机器可读报告。升级前应完成正在执行的旧协议工作，或将未完成的任务包和报告重新生成为 v0.6。

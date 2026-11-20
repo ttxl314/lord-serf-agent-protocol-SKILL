@@ -35,3 +35,12 @@ Use one decision value:
 - `REQUEST_INFO`
 
 If the request blocks execution, Lord sets `task_status: BLOCKED`; otherwise the task remains `IN_PROGRESS`. After a decision, Lord updates the authoritative state source, task package version, affected interfaces, dependencies, and downstream tasks before execution resumes.
+
+## 5. Changing an In-Flight Task
+
+An executor may hold a task package while Lord edits it. Prevent that silently:
+
+- Any change to objective, boundaries, allowed or forbidden paths, expected outputs, acceptance criteria, validation methods, runtime, or `submission_path` increments `task_version`.
+- Lord records the change and the reason in the authoritative state source before the next dispatch.
+- A report whose `executed_task_version` no longer matches is treated as stale and cannot be accepted.
+- Do not rewrite an in-flight package for wording only; wait for the current execution to submit, or bump the version and re-dispatch.

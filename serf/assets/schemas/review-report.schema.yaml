@@ -27,7 +27,7 @@ required:
   - report_path
 properties:
   protocol_version:
-    const: "0.5"
+    const: "0.6"
   profile:
     enum: [standard, full]
   project_id:
@@ -93,6 +93,10 @@ properties:
     type: object
     additionalProperties: true
   report_path:
+    type: string
+    minLength: 1
+  execution_host:
+    description: Optional app or host that executed the task.
     type: string
     minLength: 1
 additionalProperties: false

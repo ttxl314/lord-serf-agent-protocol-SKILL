@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the Lord/Serf skill pair and protocol v0.5 assets."""
+"""Validate the Lord/Serf skill pair and protocol v0.6 assets."""
 
 from __future__ import annotations
 
@@ -20,13 +20,15 @@ except ImportError as exc:  # pragma: no cover - dependency bootstrap path
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILLS = (ROOT / "lord", ROOT / "serf")
-PROTOCOL_VERSION = "0.5"
+PROTOCOL_VERSION = "0.6"
 FRONT_MATTER = re.compile(r"\A---\s*\n(.*?)\n---\s*(?:\n|\Z)", re.DOTALL)
 LOCAL_REFERENCE = re.compile(r"`((?:assets|references)/[A-Za-z0-9_.\-/]+)`")
 SKILL_NAME = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 TEXT_SUFFIXES = {".md", ".py", ".txt", ".yaml", ".yml"}
+# "subagent" is a host tool name, not a protocol role, so only the hyphenated
+# and competing-role spellings are rejected here.
 FORBIDDEN_ROLE_ALIASES = re.compile(
-    r"\b(?:sub-?agent|child agent|master[- ]agent|execution[- ]worker|"
+    r"\b(?:sub-agent|child agent|master[- ]agent|execution[- ]worker|"
     r"execution agent|external agent)\b",
     re.IGNORECASE,
 )
@@ -68,6 +70,20 @@ TASK_PACKAGE_BODY_FIELDS = {
     "expected_outputs",
     "validation_methods",
 }
+COORDINATION_REFERENCES = {
+    "lord": (
+        "references/host-runtimes.md",
+        "references/cross-application-handoff.md",
+        "references/intra-app-parallelism.md",
+    ),
+    "serf": (
+        "references/host-runtimes.md",
+        "references/cross-application-handoff.md",
+        "references/parallel-worker.md",
+    ),
+}
+HOST_BLOCKS = ("host:", "handoff:")
+HOST_PLATFORMS = ("Claude Code", "Codex", "DSH")
 
 
 def fail(message: str) -> None:
@@ -133,6 +149,8 @@ def validate_repository_hygiene() -> None:
         raw = path.read_bytes()
         if raw.startswith(b"\xef\xbb\xbf"):
             fail(f"UTF-8 BOM is not allowed: {repo_path(path)}")
+        if b"\r\n" in raw:
+            fail(f"CRLF line endings are not allowed: {repo_path(path)}")
         text = read_text(path)
         if text and not text.endswith("\n"):
             fail(f"Missing final newline: {repo_path(path)}")
@@ -162,6 +180,8 @@ def validate_skill(skill_dir: Path) -> None:
         fail(f"Invalid skill name in {repo_path(skill_path)}")
     if not isinstance(metadata["description"], str) or not metadata["description"].strip():
         fail(f"Missing skill description in {repo_path(skill_path)}")
+    if len(" ".join(metadata["description"].split())) > 1024:
+        fail(f"{repo_path(skill_path)} description exceeds 1024 characters")
     if len(text.splitlines()) > 500:
         fail(f"{repo_path(skill_path)} exceeds the 500-line disclosure limit")
 
@@ -188,6 +208,44 @@ def validate_skill(skill_dir: Path) -> None:
         )
         if not local.exists() and paired is None:
             fail(f"Broken reference in {repo_path(skill_path)}: {reference}")
+
+
+def validate_reference_index() -> None:
+    for skill_dir in SKILLS:
+        index = read_text(skill_dir / "SKILL.md")
+        if "## Hosts" not in index:
+            fail(f"{skill_dir.name}/SKILL.md must contain a Hosts section")
+        for folder in ("references", "assets"):
+            base = skill_dir / folder
+            if not base.is_dir():
+                fail(f"Missing directory: {repo_path(base)}")
+            for path in sorted(base.rglob("*")):
+                if path.is_file() and path.name not in index:
+                    fail(f"{repo_path(path)} is not indexed by {skill_dir.name}/SKILL.md")
+
+
+def validate_template_headings() -> None:
+    for skill_dir in SKILLS:
+        for path in sorted((skill_dir / "assets" / "templates").glob("*.md")):
+            text = read_text(path)
+            front = FRONT_MATTER.match(text)
+            body = text[front.end() :] if front else text
+            headings = re.findall(r"(?m)^# (.+)$", body)
+            if len(headings) != 1:
+                fail(
+                    f"{repo_path(path)} must contain exactly one level-one heading, "
+                    f"found {len(headings)}"
+                )
+            if any("command" in heading.lower() for heading in headings):
+                fail(f"{repo_path(path)} embeds a chat command heading")
+            if skill_dir.name != "serf":
+                continue
+            for token in ("$lord", "$serf"):
+                if token in body:
+                    fail(
+                        f"{repo_path(path)} stores the chat command '{token}' "
+                        "in the report body"
+                    )
 
 
 def validate_yaml_and_schemas() -> dict[str, dict[str, Any]]:
@@ -235,6 +293,57 @@ def validate_canonical_assets() -> None:
     for path in legacy:
         if path.exists():
             fail(f"Legacy asset still present: {repo_path(path)}")
+
+
+def validate_coordination_assets(schemas: dict[str, dict[str, Any]]) -> None:
+    for skill_dir in SKILLS:
+        for relative in COORDINATION_REFERENCES[skill_dir.name]:
+            if not (skill_dir / relative).is_file():
+                fail(f"Missing coordination reference: {skill_dir.name}/{relative}")
+
+    dispatch_properties = schemas["dispatch-instruction.schema.yaml"].get("properties", {})
+    for block in ("host", "handoff"):
+        if block not in dispatch_properties:
+            fail(f"dispatch-instruction.schema.yaml misses the optional '{block}' block")
+        if not isinstance(dispatch_properties[block], dict):
+            fail(f"dispatch-instruction.schema.yaml '{block}' must be an object schema")
+
+    template = read_text(ROOT / "lord/assets/templates/dispatch-instruction.md")
+    for marker in HOST_BLOCKS:
+        if marker not in template:
+            fail(f"dispatch-instruction.md does not document the '{marker}' block")
+
+    enveloped = {
+        "submission-envelope.schema.yaml": schemas["submission-envelope.schema.yaml"],
+        "micro-review-report.schema.yaml": schemas["micro-review-report.schema.yaml"],
+        "review-report.schema.yaml": schemas["review-report.schema.yaml"],
+    }
+    for name, schema in enveloped.items():
+        if "execution_host" not in schema.get("properties", {}):
+            fail(f"{name} misses the optional execution_host field")
+
+    for skill_dir in SKILLS:
+        hosts = read_text(skill_dir / "references" / "host-runtimes.md")
+        for platform in HOST_PLATFORMS:
+            if platform not in hosts:
+                fail(f"{skill_dir.name}/references/host-runtimes.md misses {platform}")
+
+
+def validate_changelog() -> None:
+    path = ROOT / "CHANGELOG.md"
+    if not path.is_file():
+        fail("Missing CHANGELOG.md")
+    text = read_text(path)
+    if not text.startswith("# Changelog"):
+        fail("CHANGELOG.md must start with '# Changelog'")
+    release = re.search(r"(?m)^## (\d+\.\d+(?:\.\d+)?)\s*$", text)
+    if not release:
+        fail("CHANGELOG.md must contain a '## <version>' release heading")
+    if not release.group(1).startswith(f"{PROTOCOL_VERSION}."):
+        fail(
+            "CHANGELOG.md latest release heading must belong to protocol "
+            f"{PROTOCOL_VERSION}, found {release.group(1)}"
+        )
 
 
 def validate_project_context_index() -> None:
@@ -302,7 +411,16 @@ def validate_template_contracts(schemas: dict[str, dict[str, Any]]) -> None:
 
         for key, value in data.items():
             property_schema = schema.get("properties", {}).get(key)
-            if property_schema is None or value is None or value == [] or value == {}:
+            if property_schema is None:
+                continue
+            if value is None:
+                if key not in required:
+                    fail(
+                        f"{repo_path(path)} carries optional field '{key}' with an "
+                        "empty value; comment it out instead"
+                    )
+                continue
+            if value == [] or value == {}:
                 continue
             field_schema = {
                 "$schema": schema.get("$schema"),
@@ -334,15 +452,11 @@ def validate_envelope_templates(envelope_schema: dict[str, Any]) -> None:
         if missing:
             fail(f"{repo_path(path)} misses envelope fields: {sorted(missing)}")
 
-    commands = {
-        "review-report.md": "$lord review",
-        "blocker-report.md": "$lord resolve",
-        "change-request-report.md": "$lord resolve",
-    }
-    for name, command in commands.items():
-        path = ROOT / "serf" / "assets" / "templates" / name
-        if command not in read_text(path):
-            fail(f"Incorrect Lord command in {repo_path(path)}")
+    # Routing belongs to chat and is documented once, in the reporting reference.
+    reporting = read_text(ROOT / "serf" / "references" / "submission-reporting.md")
+    for command in ("$lord review", "$lord resolve"):
+        if command not in reporting:
+            fail(f"submission-reporting.md does not document '{command}'")
 
 
 def validate_examples(schemas: dict[str, dict[str, Any]]) -> None:
@@ -401,7 +515,20 @@ def validate_examples(schemas: dict[str, dict[str, Any]]) -> None:
         "task_package_path": "TASKS/Task-A-01.md",
         "submission_path": "REVIEWS/Task-A-01-REVIEW.md",
         "worker_skill": "serf",
-        "worker_invocation": "$serf",
+        "worker_invocation": 'skill("serf")',
+        "host": {
+            "agent": "dsh",
+            "model": "deepseek-flash",
+            "skill_invocation": 'skill("serf")',
+            "supports_subagents": True,
+            "shared_workspace": True,
+        },
+        "handoff": {
+            "from_app": "dsh",
+            "to_app": "word",
+            "transport": "upload",
+            "return_transport": "upload",
+        },
     }
     envelope = {
         "protocol_version": PROTOCOL_VERSION,
@@ -413,6 +540,7 @@ def validate_examples(schemas: dict[str, dict[str, Any]]) -> None:
         "submission_type": "REVIEW",
         "task_package_path": "TASKS/Task-A-01.md",
         "report_path": "REVIEWS/Task-A-01-REVIEW.md",
+        "execution_host": "dsh",
     }
     report_fields = {
         "changed_outputs": ["src/example.py"],
@@ -443,8 +571,21 @@ def validate_examples(schemas: dict[str, dict[str, Any]]) -> None:
     for schema_name, instance in examples.items():
         validator = Draft202012Validator(schemas[schema_name], format_checker=checker)
         validator.validate(instance)
-        if not list(validator.iter_errors({**instance, "protocol_version": "0.4"})):
-            fail(f"{schema_name} accepts obsolete protocol version 0.4")
+        if not list(validator.iter_errors({**instance, "protocol_version": "0.5"})):
+            fail(f"{schema_name} accepts obsolete protocol version 0.5")
+
+    dispatch_validator = Draft202012Validator(
+        schemas["dispatch-instruction.schema.yaml"], format_checker=checker
+    )
+    bad_transport = {
+        **dispatch,
+        "handoff": {**dispatch["handoff"], "transport": "email"},
+    }
+    if not list(dispatch_validator.iter_errors(bad_transport)):
+        fail("dispatch-instruction.schema.yaml accepts an unknown handoff transport")
+    bad_agent = {**dispatch, "host": {**dispatch["host"], "agent": "unknown-app"}}
+    if not list(dispatch_validator.iter_errors(bad_agent)):
+        fail("dispatch-instruction.schema.yaml accepts an unknown host agent")
 
     envelope_validator = Draft202012Validator(
         schemas["submission-envelope.schema.yaml"], format_checker=checker
@@ -478,8 +619,12 @@ def main() -> int:
     validate_vocabulary()
     for skill_dir in SKILLS:
         validate_skill(skill_dir)
+    validate_reference_index()
+    validate_template_headings()
     schemas = validate_yaml_and_schemas()
     validate_canonical_assets()
+    validate_coordination_assets(schemas)
+    validate_changelog()
     validate_project_context_index()
     validate_template_profiles()
     validate_template_contracts(schemas)
@@ -487,7 +632,7 @@ def main() -> int:
     validate_examples(schemas)
     print(
         f"Validated Lord/Serf protocol v{PROTOCOL_VERSION}, repository hygiene, "
-        "and canonical vocabulary."
+        "canonical vocabulary, host and handoff assets."
     )
     return 0
 
