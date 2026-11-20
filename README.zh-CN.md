@@ -39,11 +39,13 @@
 ├── .gitattributes
 ├── .github/workflows/validate.yml
 ├── CHANGELOG.md
+├── bin/install.mjs
 ├── lord/
 │   ├── SKILL.md
 │   ├── agents/openai.yaml
 │   ├── assets/{schemas,templates}/
 │   └── references/
+├── package.json
 ├── serf/
 │   ├── SKILL.md
 │   ├── agents/openai.yaml
@@ -56,6 +58,20 @@
 Lord 负责任务与派发资源，Serf 负责提交资源。`assets/` 下的路径均相对于当前激活的 Skill 根目录解释。
 
 ## 安装
+
+```bash
+npx lord-serf-skill install --all     # Codex + Claude Code + DSH
+npx lord-serf-skill install --dsh     # 只装一个宿主
+npx lord-serf-skill install --dir ./skills --force
+```
+
+安装器会把 `lord/` 与 `serf/` 复制到宿主的 Skills 目录，并打印对应的调用方式。`--list` 查看本机已存在哪些宿主目录，`--dry-run` 只打印计划，不加 `--force` 不会覆盖已有副本。也可以手动安装：把两个文件夹复制到下表对应的目录。
+
+registry 版本上线前，可以直接从仓库运行同一个安装器：
+
+```bash
+npx github:ttxl314/lord-serf-agent-protocol-SKILL install --all
+```
 
 | 宿主 | Skill 目录 | 调用 | 启动执行端 |
 |---|---|---|---|

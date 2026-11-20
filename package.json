@@ -1,0 +1,42 @@
+{
+  "name": "lord-serf-skill",
+  "version": "0.6.1",
+  "description": "Lord and Serf: paired agent skills for file-based orchestration of complex multi-executor projects. Protocol 0.6.",
+  "keywords": [
+    "agent-skills",
+    "claude-code",
+    "codex",
+    "dsh",
+    "deepseek",
+    "multi-agent",
+    "orchestration",
+    "task-package",
+    "skill"
+  ],
+  "license": "MIT",
+  "author": "ttxl314",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ttxl314/lord-serf-agent-protocol-SKILL.git"
+  },
+  "homepage": "https://github.com/ttxl314/lord-serf-agent-protocol-SKILL#readme",
+  "bugs": {
+    "url": "https://github.com/ttxl314/lord-serf-agent-protocol-SKILL/issues"
+  },
+  "type": "module",
+  "bin": {
+    "lord-serf": "bin/install.mjs"
+  },
+  "files": [
+    "bin",
+    "lord",
+    "serf",
+    "CHANGELOG.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

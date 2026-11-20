@@ -39,11 +39,13 @@ Protocol 0.6 makes the two coordination patterns below first-class: optional `ho
 ├── .gitattributes
 ├── .github/workflows/validate.yml
 ├── CHANGELOG.md
+├── bin/install.mjs
 ├── lord/
 │   ├── SKILL.md
 │   ├── agents/openai.yaml
 │   ├── assets/{schemas,templates}/
 │   └── references/
+├── package.json
 ├── serf/
 │   ├── SKILL.md
 │   ├── agents/openai.yaml
@@ -56,6 +58,20 @@ Protocol 0.6 makes the two coordination patterns below first-class: optional `ho
 Lord owns task and dispatch assets. Serf owns submission assets. Paths under `assets/` are relative to the active skill root.
 
 ## Install
+
+```bash
+npx lord-serf-skill install --all     # Codex + Claude Code + DSH
+npx lord-serf-skill install --dsh     # one host
+npx lord-serf-skill install --dir ./skills --force
+```
+
+The installer copies `lord/` and `serf/` into the host's skills directory and prints the invocation form. `--list` shows which host directories exist, `--dry-run` prints the plan, and nothing is overwritten without `--force`. Manual install works too: copy both folders into the directory in the table below.
+
+The same installer runs straight from this repository, without the registry:
+
+```bash
+npx github:ttxl314/lord-serf-agent-protocol-SKILL install --all
+```
 
 | Host | Skill directory | Invoke | Start an executor |
 |---|---|---|---|

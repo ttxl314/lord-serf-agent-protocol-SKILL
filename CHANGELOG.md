@@ -2,6 +2,20 @@
 
 Protocol releases for the Lord and Serf skill pair.
 
+## 0.6.1
+
+Distribution release: the protocol stays 0.6, no skill text changed.
+
+### Added
+
+- npm package `lord-serf-skill` with a `lord-serf` installer that copies the two skills into the Codex, Claude Code, or DSH skills directory. Targets: `--codex`, `--claude`, `--dsh`, `--dir <path>`, `--all`; options: `--force`, `--dry-run`, `--list`, `--version`.
+- `package.json` and `bin/install.mjs`.
+
+### Changed
+
+- Both READMEs document the one-line `npx` install and the `npx github:` fallback; manual installation stays available.
+- `.gitignore` ignores `node_modules/` and packed tarballs.
+
 ## 0.6.0
 
 The two coordination capabilities become part of the protocol. Field names are unchanged from 0.5; the `protocol_version` constant moves to `"0.6"`, so regenerate unfinished artifacts.
